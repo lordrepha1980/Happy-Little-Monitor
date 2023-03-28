@@ -1,5 +1,5 @@
 <template>
-    <cust-page :noGrid="true" :subScrollHeight="170">
+    <cust-page :noGrid="true" :subScrollHeight="100">
         <template #header>
             Processes
         </template>

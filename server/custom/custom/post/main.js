@@ -64,7 +64,7 @@ const send              = require('koa-send')
             return new Promise((resolve, reject) => {
                 let chunk = ''
                 const readStream = fs.createReadStream(path, {
-                    start: (fs.statSync(path).size - 1000000 >= 0) ? ( fs.statSync(path).size - 1000000 ) : fs.statSync(path).size
+                    start: (fs.statSync(path).size - 1000000 >= 0) ? ( fs.statSync(path).size - 1000000 ) : 0
                 });
     
                 readStream.on('data', data => {
