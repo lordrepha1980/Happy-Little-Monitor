@@ -4,7 +4,7 @@ import { extend }       from 'quasar'
 import { mainStore } from './main.store'
 import { socketStore }  from './socket.store'
 import { M } from 'app/dist/spa/assets/index.22b2a52a'
-import Global from 'src/helpers/global.js'
+import Global from 'src/helpers/Global.js'
 const global = Global({})
 
 export interface ILogStore { 
