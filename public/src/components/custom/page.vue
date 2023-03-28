@@ -13,7 +13,7 @@
                 
             </q-card-section>
         </q-card>
-        <q-scroll-area :style="{width: 'calc(100%)', height: `calc(100vh - 100px - ${subScrollHeight}px - env(safe-area-inset-bottom))`}">
+        <q-scroll-area :style="{width: 'calc(100%)', height: `calc(100vh - 100px - ${subScrollHeight}px - env(safe-area-inset-bottom) - env(safe-area-inset-top))`}">
             <q-card v-if="!noGrid" flat square>
                 <q-card-section class="q-pa-xs">
                     <slot name="grid"></slot>
