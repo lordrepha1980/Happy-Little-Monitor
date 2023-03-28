@@ -1,5 +1,5 @@
 <template>
-    <cust-page :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 210 : 140">
+    <cust-page :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 300 : 220">
         <template #header>
             <div class="row">
                 <div class="col-6 text-subtitle2 text-primary">
