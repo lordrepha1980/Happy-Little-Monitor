@@ -1,0 +1,60 @@
+// app global css in SCSS form
+.q-field__native[require="true"] ~ .q-field__label:after {
+    content: ' *';
+    color: $negative;
+}
+
+.jsondiffpatch-unchanged, .jsondiffpatch-movedestination {
+    color: gray;
+    display: none;
+}
+
+
+.redRow {
+    background-color: $red-6;
+    color: white;
+}
+
+.greenRow {
+    background-color: $green-6;
+}
+
+.yellowRow {
+    background-color: $yellow-8;
+}
+
+.greyRow {
+    color: $grey-6 !important;
+}
+
+.textGreen {
+    color: $green-5
+}
+
+.textRed {
+    color: $red-5
+}
+
+.q-expansion-item__container .disabled {
+    pointer-events: none;
+    opacity: 1 !important;
+}
+
+.button {
+    width: 100%;
+    height: 21px;
+    line-height: initial;
+    background-color: #25AACC;
+    border: 1px solid grey;
+    color: white;
+}
+
+a {
+    color: #25AACC;
+}
+
+.ag-floating-filter-full-body::before {
+    content:'\f0b0 ';
+    font-family: "Font Awesome 5 Free";
+    padding-right: 5px
+  }

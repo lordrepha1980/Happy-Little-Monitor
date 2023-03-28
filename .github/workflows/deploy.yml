@@ -1,0 +1,84 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Dep Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm i -g @quasar/cli
+    - run: pwd
+    - run: ls -la
+    - run: | 
+        cd public
+        npm install
+        npx quasar build
+    - name: multiple command
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        key: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        script: |
+          pm2 stop hlm.lordrepha.de
+    - name: copy client files via ssh password
+      uses: garygrossgarten/github-action-scp@release
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        privateKey: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        local: "public/dist/spa"
+        verbose: true
+        remote: "/var/www/hlm.lordrepha.de/public"
+    - name: copy server files via ssh password
+      uses: garygrossgarten/github-action-scp@release
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        privateKey: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        local: "server/custom"
+        verbose: true
+        remote: "/var/www/hlm.lordrepha.de/server/custom"
+    - name: copy tables.json via ssh password
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        key: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        source: "server/database/tables.json"
+        target: "/var/www/hlm.lordrepha.de/server/database"
+    - name: copy packages files via ssh password
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        key: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        source: "package.json,package-lock.json"
+        target: "/var/www/hlm.lordrepha.de"
+    - name: multiple command
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        key: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        script: |
+          cd /var
+          npm ci
+          pm2 restart hlm.lordrepha.de
+
