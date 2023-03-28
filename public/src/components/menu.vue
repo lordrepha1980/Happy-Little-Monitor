@@ -1,11 +1,12 @@
 <template>
-    <div class="row bg-grey-9" style="min-height: 30px">
-        <div class="col-12">
+    <div class="row bg-dark" style="min-height: 30px">
+        <div class="col-12 flex justify-end">
             <template v-for="btn of struct">
-                <q-btn          
+                <q-btn    
+                    class="q-mx-sm"      
                     v-if="remove(btn)"
                     style="margin-right: 1px"
-                    square
+                    round
                     size="12px"
                     text-color="dark"
                     unelevated
@@ -17,7 +18,7 @@
                     @click="onClick(btn)" 
                 >
                     <q-menu v-if="btn.childrens">
-                        <q-list style="min-width: 100px" class="bg-dark">
+                        <q-list style="min-width: 100px" class="bg-grey-9">
                             <template v-for="child of btn.childrens" :key="child._id || child.label">
                                 <q-item clickable v-close-popup @click="onClick(child)">
                                     <q-item-section avatar style="min-width: 0px">

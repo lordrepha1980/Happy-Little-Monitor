@@ -1,8 +1,7 @@
 <template>
-    <q-page class="q-pa-sm">
+    <q-page padding class="q-pa-sm">
         <div class="row">
             <div class="col text-subtitle2 text-primary">
-                <q-icon name="layers" />
                 <slot name="header" ></slot>
                 <q-separator class="q-mb-xs  bg-primary" />
             </div>
@@ -13,7 +12,7 @@
                 
             </q-card-section>
         </q-card>
-        <q-scroll-area :style="{width: 'calc(100%)', height: `calc(100vh - 100px - ${subScrollHeight}px - env(safe-area-inset-bottom) - env(safe-area-inset-top))`}">
+        <q-scroll-area :style="{width: 'calc(100%)', height: `calc(100vh - 100px - ${subScrollHeight}px)`}">
             <q-card v-if="!noGrid" flat square>
                 <q-card-section class="q-pa-xs">
                     <slot name="grid"></slot>

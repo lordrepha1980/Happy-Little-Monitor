@@ -7,6 +7,9 @@
         <q-card-section class="q-pa-sm">
             <slot name="content" />
         </q-card-section>
+        <q-card-section class="q-pa-sm" v-if="menuBottom">
+            <slot name="menuBottom"  />
+        </q-card-section>
     </q-card>
 </template>
 
@@ -20,7 +23,11 @@ const props = defineProps({
     selected: {
         type: Boolean,
         default: false
-    }
+    },
+    menuBottom: {
+        type: Boolean,
+        default: false
+    },
 })
 
 </script>

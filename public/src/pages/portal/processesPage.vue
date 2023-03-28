@@ -1,21 +1,46 @@
 <template>
-    <cust-page :noGrid="true" :subScrollHeight="100">
+    <cust-page :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 210 : 140">
         <template #header>
-            Processes
+            <div class="row">
+                <div class="col-6 text-subtitle2 text-primary">
+                    <q-icon name="layers" />
+                    Processes
+                </div>
+                <div class="col-6 text-right">
+                    <q-icon name="cloud_off" color="red-9" size="14px" class="q-pr-xs" /> {{ processesOffline }}
+                    <q-icon name="cloud" color="green" class="q-pl-md q-pr-xs" />{{ processesOnline }}
+                </div>
+            </div>
         </template>
         <template #menu>
-            <cust-menu :struct="menuItems" storeName="processes" />
             <cust-card class="q-mt-sm">
                 <template #content>
                     <div class="row text-h6 text-white flex items-center">
+                        <div class="col-12 text-caption text-primary">
+                            Server
+                            <q-separator dark />
+                        </div>
                         <div class="col-6 col-sm-4 ellipsis">
                             <q-icon name="fa-brands fa-hive" size="20px" color="white" class="q-pr-sm"/>{{ serverParams.ip_address }}
                         </div>
                         <div class="col-6 col-sm-4 ellipsis">
                             <q-icon name="fa-brands fa-node-js" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.node_version }} {{ serverParams.node_os }}
                         </div>
-                        <div class="col-12 col-sm-4 ellipsis">
+                        <div class="col-4 col-sm-4 ellipsis">
                             <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.server_uptime }}
+                        </div>
+                        <div class="col-12 text-caption text-primary q-pt-sm">
+                            MongoDB
+                            <q-separator dark />
+                        </div>
+                        <div class="col-6 col-sm-4 ellipsis">
+                            <q-icon name="fa-solid fa-database" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_connections?.current }} / {{ serverParams.mongoDB_connections?.available }}
+                        </div>
+                        <div class="col-6 col-sm-4 ellipsis">
+                            <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_uptime }}
+                        </div>
+                        <div class="col-6 col-sm-4 ellipsis">
+                            <q-icon name="fas fa-leaf" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_version }}
                         </div>
                     </div>
                 </template>
@@ -23,44 +48,62 @@
             <q-separator dark class="q-pa-none"/>
         </template>
         <template #content>
-            <cust-card :selected="recordId === proc.pm_id" @click="useProcessesStore.setRecord({id: proc.pm_id, name: proc.name, errorPath: proc.pm2_env.pm_err_log_path, outPath: proc.pm2_env.pm_out_log_path  })" :disableHeader="false" v-for="proc of processes" :key="proc.pm_id">
-                <template #header>
-                    <div class="row q-pl-xs flex ">
-                        <div class="col-3 col-sm-1 text-h6 text-bold text-primary flex items-center">
-                            <q-icon name="fas fa-server" size="14px" color="grey-7" class="q-pr-sm"/> {{proc.pm_id}}
-                        </div>
-                        <div class="col-8 col-sm-10 text-h6 text-primary ellipsis">
-                            {{proc.name}}
-                        </div>
-                        <div class="col-1 text-h6 text-primary ellipsis">
-                            <q-icon name="cloud_off" color="red-9" v-if="proc.pm2_env.status !== 'online'" />
-                            <q-icon name="cloud" color="green" v-else />
-                        </div>
-                    </div>
+            <q-list dark class="rounded-borders bg-dark text-white">
+                <template v-for="proc of processes" :key="proc.pm_id">
+                    <q-expansion-item
+                        icon="fas fa-server"
+                        :label="proc.name"
+                        :disableHeader="false" 
+                    >
+                        <template v-slot:header>
+                            <q-item-section avatar>
+                                <q-icon name="fas fa-server" color="primary" text-color="white" />
+                            </q-item-section>
+
+                            <q-item-section class="text-h6">
+                                {{proc.name}}
+                            </q-item-section>
+
+                            <q-item-section side>
+                                <div class="row items-center" >
+                                    <q-icon size="20px" name="cloud_off" color="red-9" v-if="proc.pm2_env.status !== 'online'" />
+                                    <q-icon size="20px" name="cloud" color="green" v-else />
+                                </div>
+
+                            </q-item-section>
+                        
+                        </template>
                     
+                        <cust-card :menuBottom="true" >
+                            <template #content v-if="proc.pm2_env.status === 'online'">
+                                <div class="row text-h6 q-pb-md q-pl-xs q-col-gutter-xs">
+                                    <div class="col-6 col-sm-4 ellipsis flex items-center" v-if="proc.monit.memory" >
+                                    <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{(proc.monit.memory / 1000 / 1024).toFixed(2)}} MiB
+                                    </div>
+                                    <div class="col-3 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
+                                        <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm"/> {{proc.monit.cpu}}
+                                    </div>
+                                    <div class="col-3 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
+                                        <q-icon name="refresh" size="20px" class="q-pr-sm"/> {{proc.pm2_env.restart_time}}
+                                    </div>
+                                </div>
+                                <div class="row text-body1 q-pl-xs q-pb-sm">
+                                    <div class="col-12 col-sm-4" v-if="proc.pm2_env.created_at">
+                                        Created at: {{`${moment(proc.pm2_env.created_at).format('YYYY-MM-DD HH:mm')}` }}
+                                    </div>
+                                    <div class="col-12 col-sm-4" v-if="proc.pm2_env.created_at">
+                                        Uptime: {{`${moment(proc.pm2_env.pm_uptime).fromNow(proc.pm2_env.created_at)}` }}
+                                    </div>
+                                </div>
+                            </template>
+                            <template #menuBottom>
+                                <cust-menu :struct="menuItems" storeName="processes" @click="useProcessesStore.setRecord({id: proc.pm_id, name: proc.name, errorPath: proc.pm2_env.pm_err_log_path, outPath: proc.pm2_env.pm_out_log_path  })" />
+                            </template>
+                        </cust-card>
+                    </q-expansion-item>
+                    <q-separator dark />
                 </template>
-                <template #content v-if="proc.pm2_env.status === 'online'">
-                    <div class="row text-h6 q-pb-md q-pl-xs q-col-gutter-xs">
-                        <div class="col-6 col-sm-4 ellipsis flex items-center" v-if="proc.monit.memory" >
-                           <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{(proc.monit.memory / 1000 / 1024).toFixed(2)}} MiB
-                        </div>
-                        <div class="col-6 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
-                            <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm"/> {{proc.monit.cpu}}
-                        </div>
-                        <div class="col-12 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
-                            <q-icon name="refresh" size="20px" class="q-pr-sm"/> {{proc.pm2_env.restart_time}}
-                        </div>
-                    </div>
-                    <div class="row text-body1 q-pl-xs">
-                        <div class="col-12 col-sm-4" v-if="proc.pm2_env.created_at">
-                            Created at: {{`${moment(proc.pm2_env.created_at).format('YYYY-MM-DD HH:mm')}` }}
-                        </div>
-                        <div class="col-12 col-sm-4" v-if="proc.pm2_env.created_at">
-                            Uptime: {{`${moment(proc.pm2_env.pm_uptime).fromNow(proc.pm2_env.created_at)}` }}
-                        </div>
-                    </div>
-                </template>
-            </cust-card>
+            </q-list>
             <q-dialog v-model="openLogProcess" persistent maximized>
                 <q-card class="bg-dark text-white">
                     <q-card-section>
@@ -85,7 +128,7 @@
                         </q-toolbar>
                     </q-card-section>
                     <q-card-section class="row items-center logbook">
-                        <q-scroll-area ref="LogScrollArea" style="width: 100%; height: calc(100vh - 120px);">
+                        <q-scroll-area ref="LogScrollArea" style="width: 100%; height: calc(100vh - 200px);">
                             <span class="q-ml-sm" v-text="selectedLogFile"></span>
                         </q-scroll-area>
                     </q-card-section>
@@ -127,7 +170,7 @@ import CustPage             from 'src/components/custom/page.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
 import { processesStore }   from 'src/stores/processes.store'
 import moment               from 'moment';
-
+import { Platform }         from 'quasar'
 const useMainStore                  = mainStore()
 
 const useProcessesStore = processesStore()
@@ -140,7 +183,9 @@ const {
     timer, 
     recordName,
     showConfirmActionDialog,
-    confirmActionDialogType
+    confirmActionDialogType,
+    processesOffline,
+    processesOnline
 } = storeToRefs(useProcessesStore)
 
 const router = useRouter()
@@ -148,19 +193,31 @@ const LogScrollArea = ref(null)
 
 const menuItems = [
     {
-        label: 'Stop',
-        icon: 'fas fa-stop',
-        type: 'stop',
-        action: 'setShowConfirmActionDialog'
+        label: '',
+        icon: 'fas fa-bolt',
+        childrens: [
+            {
+                label: 'Stop',
+                icon: 'fas fa-stop',
+                type: 'stop',
+                action: 'setShowConfirmActionDialog'
+            },
+            {
+                label: 'Restart',
+                icon: 'fas fa-redo',
+                type: 'restart',
+                action: 'setShowConfirmActionDialog'
+            },
+            {
+                label: 'Reset',
+                icon: 'fas fa-redo',
+                type: 'reset',
+                action: 'setShowConfirmActionDialog'
+            },
+        ]
     },
     {
-        label: 'Restart',
-        icon: 'fas fa-redo',
-        type: 'restart',
-        action: 'setShowConfirmActionDialog'
-    },
-    {
-        label: 'Log',
+        label: '',
         icon: 'fas fa-book',
         childrens: [
             {
@@ -174,7 +231,8 @@ const menuItems = [
                 action: 'setOpenLogProcess'
             }
         ]
-    }
+    },
+
 ]
 
 onMounted( async () => {
@@ -200,5 +258,9 @@ watch( selectedLogFile, async () => {
 
     .logbook {
         white-space: pre;
+    }
+
+    .expansionBorder {
+        border-bottom: 1px solid $primary;
     }
 </style>

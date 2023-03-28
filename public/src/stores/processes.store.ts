@@ -28,6 +28,8 @@ export const processesStore = defineStore('processes', {
         _timer: <number> 0,
         _showConfirmActionDialog: <boolean> false,
         _confirmActionDialogType: <string> '',
+        _processesOnline: <number> 0,
+        _processesOffline: <number> 0,
     }),
     getters: {
         data: (state) => state._data,
@@ -44,6 +46,8 @@ export const processesStore = defineStore('processes', {
         timer: (state) => state._timer,
         showConfirmActionDialog: (state) => state._showConfirmActionDialog,
         confirmActionDialogType: (state) => state._confirmActionDialogType,
+        processesOnline: (state) => state._processesOnline,
+        processesOffline: (state) => state._processesOffline,
     },
     actions: {
         async init () {
@@ -52,6 +56,14 @@ export const processesStore = defineStore('processes', {
             const useMainStore      = mainStore()
 
             io.value.on('process', ( { data, params }: any ) => {
+                this._processesOffline = 0
+                this._processesOnline = 0
+                data.forEach( (proc: any) => {
+                    if ( proc.pm2_env.status === 'online' )
+                        this._processesOnline += 1
+                    else
+                        this._processesOffline += 1
+                });
                 this._data = data
                 this._serverParams = params
                 useMainStore.setReceive()
@@ -88,6 +100,9 @@ export const processesStore = defineStore('processes', {
                 case 'stop':
                     this.stopProcess()
                     break
+                case 'reset':
+                    this.resetProcess()
+                    break
             }
         },
         async stopProcess() {
@@ -98,11 +113,16 @@ export const processesStore = defineStore('processes', {
             const result = await dataService.customApi( { endpoint: 'main', action: 'restartProcess', body: { process: this._recordId } } )
             this.setShowConfirmActionDialog()
         },
+        async resetProcess() {
+            const result = await dataService.customApi( { endpoint: 'main', action: 'resetProcess', body: { process: this._recordId } } )
+            this.setShowConfirmActionDialog()
+        },
         async logProcess(type: string) {
             this._timer = 0
             const path = type === 'out' ? this._outPath : this._errorPath
             const result = await dataService.customApi( { endpoint: 'main', action: 'getLogFilePM2', body: { path } } )
-            if ( result.data )
+
+            if ( result.data ) 
                 this._selectedLogFile = result.data
         },
         setOpenLogProcess(btn: any) { 

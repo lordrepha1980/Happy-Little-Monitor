@@ -75,6 +75,11 @@ class main extends Custom {
             pm2.stop(body.process)
     }
 
+    async resetProcess( {body, ctx} ) {
+        if ( body.process !== undefined )
+            pm2.reset(body.process)
+    }
+
     async restartProcess( {body, ctx} ) {
         if ( body.process !== undefined )
             pm2.restart(body.process)

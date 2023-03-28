@@ -17,10 +17,16 @@ module.exports  = {
                     if (err) {
                         debug(err);
                     }
-                    pm2.list(function(err, list) {
+                    pm2.list(async function(err, list) {
+                        const { db, client } = await mob.db()
+                        const data = await db.command({ serverStatus: 1 })
+                        client.close()
                         io.emit('process', { data: list, params: {
                             node_version: process.version,
                             node_os: process.platform,
+                            mongoDB_connections: data.connections,
+                            mongoDB_version: data.version,
+                            mongoDB_uptime: moment.duration(data.uptime, 'seconds').humanize(),
                             server_uptime: moment.duration(os.uptime(), 'seconds').humanize(),
                             ip_address: ip.address()
                         } } )

@@ -52,6 +52,11 @@ const send              = require('koa-send')
             pm2.stop(body.process)
     }
 
+    async resetProcess( {body, ctx} ) {
+        if ( body.process !== undefined )
+            pm2.reset(body.process)
+    }
+
     async restartProcess( {body, ctx} ) {
         if ( body.process !== undefined )
             pm2.restart(body.process)
