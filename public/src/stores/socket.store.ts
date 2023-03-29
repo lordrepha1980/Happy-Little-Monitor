@@ -39,6 +39,7 @@ export const socketStore = defineStore('socket', {
                         log('Socket disconnected');
                         this._socket = {} as Socket;
                         resolve(true);
+                        mainStore()._receive = false
                     })
 
                 } catch (error) {

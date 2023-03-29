@@ -1,6 +1,6 @@
 import { defineStore, storeToRefs }  from 'pinia'
 import { dataService }  from 'src/services/data.service'
-import { extend }       from 'quasar'
+import { extend, Loading, QSpinnerGrid}       from 'quasar'
 import { mainStore } from './main.store'
 import { socketStore }  from './socket.store'
 import Global from 'src/helpers/Global.js'
@@ -30,6 +30,8 @@ export const processesStore = defineStore('processes', {
         _confirmActionDialogType: <string> '',
         _processesOnline: <number> 0,
         _processesOffline: <number> 0,
+        _loading: <boolean> false,
+        _showServerStatusDialog: <boolean> false,
     }),
     getters: {
         data: (state) => state._data,
@@ -48,9 +50,17 @@ export const processesStore = defineStore('processes', {
         confirmActionDialogType: (state) => state._confirmActionDialogType,
         processesOnline: (state) => state._processesOnline,
         processesOffline: (state) => state._processesOffline,
+        loading: (state) => state._loading,
+        showServerStatusDialog: (state) => state._showServerStatusDialog,
     },
     actions: {
         async init () {
+            this._loading = true
+            Loading.show({
+                spinner: QSpinnerGrid,
+                spinnerColor: 'primary',
+                spinnerSize: 80
+              })
             const useSocketStore    = socketStore()
             const { io }: any       = storeToRefs(useSocketStore)
             const useMainStore      = mainStore()
@@ -67,6 +77,8 @@ export const processesStore = defineStore('processes', {
                 this._data = data
                 this._serverParams = params
                 useMainStore.setReceive()
+                Loading.hide()
+                this._loading = false
                 //TODO set receive after x seconds to false
             })
         },
@@ -75,6 +87,9 @@ export const processesStore = defineStore('processes', {
             this._recordName = name
             this._errorPath = errorPath
             this._outPath = outPath
+        },
+        setShowServerStatusDialog() {
+            this._showServerStatusDialog = !this._showServerStatusDialog
         },
         setShowConfirmActionDialog(btn?: any) {
             if (this._recordId === null) {

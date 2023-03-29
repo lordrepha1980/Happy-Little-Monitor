@@ -1,5 +1,5 @@
 <template>
-    <cust-page :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 300 : 220">
+    <cust-page v-if="!loading" :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 300 : 220">
         <template #header>
             <div class="row">
                 <div class="col-6 text-subtitle2 text-primary">
@@ -7,8 +7,8 @@
                     Processes
                 </div>
                 <div class="col-6 text-right">
-                    <q-icon name="cloud_off" color="red-9" size="14px" class="q-pr-xs" /> {{ processesOffline }}
-                    <q-icon name="cloud" color="green" class="q-pl-md q-pr-xs" />{{ processesOnline }}
+                    <q-icon name="fas fa-server" color="red-5" size="10px" class="q-pr-xs" /> {{ processesOffline }}
+                    <q-icon name="fas fa-server" color="green-5" size="10px" class="q-pl-md q-pr-xs" />{{ processesOnline }}
                 </div>
             </div>
         </template>
@@ -26,10 +26,13 @@
                         <div class="col-6 col-sm-4 ellipsis">
                             <q-icon name="fa-brands fa-node-js" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.node_version }} {{ serverParams.node_os }}
                         </div>
-                        <div class="col-4 col-sm-4 ellipsis">
+                        <div class="col-6 col-sm-3 ellipsis">
                             <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.server_uptime }}
                         </div>
-                        <div class="col-12 text-caption text-primary q-pt-sm">
+                        <div class="col-6 col-sm-1 flex justify-end">
+                            <q-btn color="primary" class="q-mt-sm" unelevated round icon="account_tree"  size="12px" text-color="dark"  @click="useProcessesStore.setShowServerStatusDialog" />
+                        </div>
+                        <div class="col-12 text-caption text-primary q-py-sm">
                             MongoDB
                             <q-separator dark />
                         </div>
@@ -37,10 +40,10 @@
                             <q-icon name="fa-solid fa-database" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_connections?.current }} / {{ serverParams.mongoDB_connections?.available }}
                         </div>
                         <div class="col-6 col-sm-4 ellipsis">
-                            <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_uptime }}
+                            <q-icon name="fas fa-leaf" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_version }}
                         </div>
                         <div class="col-6 col-sm-4 ellipsis">
-                            <q-icon name="fas fa-leaf" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_version }}
+                            <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_uptime }}
                         </div>
                     </div>
                 </template>
@@ -48,16 +51,19 @@
             <q-separator dark class="q-pa-none"/>
         </template>
         <template #content>
-            <q-list dark class="rounded-borders bg-dark text-white">
+            <q-list class="rounded-borders bg-grey-9 text-white">
                 <template v-for="proc of processes" :key="proc.pm_id">
                     <q-expansion-item
                         icon="fas fa-server"
                         :label="proc.name"
                         :disableHeader="false" 
+                        class="bg-dark q-mb-sm processesList"
+                        dark
                     >
                         <template v-slot:header>
                             <q-item-section avatar>
-                                <q-icon name="fas fa-server" color="primary" text-color="white" />
+                                <q-icon name="fas fa-server" v-if="proc.pm2_env.status !== 'online'" color="red-5" text-color="white" />
+                                <q-icon name="fas fa-server" v-else color="green-5" text-color="white" />
                             </q-item-section>
 
                             <q-item-section class="text-h6">
@@ -66,8 +72,9 @@
 
                             <q-item-section side>
                                 <div class="row items-center" >
-                                    <q-icon size="20px" name="cloud_off" color="red-9" v-if="proc.pm2_env.status !== 'online'" />
-                                    <q-icon size="20px" name="cloud" color="green" v-else />
+                                    <div class="col-12 ellipsis flex items-center" v-if="proc.monit.memory" >
+                                        <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{calcMemory(proc.monit.memory)}}
+                                    </div>  
                                 </div>
 
                             </q-item-section>
@@ -78,10 +85,10 @@
                             <template #content v-if="proc.pm2_env.status === 'online'">
                                 <div class="row text-h6 q-pb-md q-pl-xs q-col-gutter-xs">
                                     <div class="col-6 col-sm-4 ellipsis flex items-center" v-if="proc.monit.memory" >
-                                    <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{(proc.monit.memory / 1000 / 1024).toFixed(2)}} MiB
+                                    <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{calcMemory(proc.monit.memory)}}
                                     </div>
                                     <div class="col-3 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
-                                        <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm"/> {{proc.monit.cpu}}
+                                        <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm"/> {{proc.monit.cpu}}%
                                     </div>
                                     <div class="col-3 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
                                         <q-icon name="refresh" size="20px" class="q-pr-sm"/> {{proc.pm2_env.restart_time}}
@@ -101,7 +108,6 @@
                             </template>
                         </cust-card>
                     </q-expansion-item>
-                    <q-separator dark />
                 </template>
             </q-list>
             <q-dialog v-model="openLogProcess" persistent maximized>
@@ -154,6 +160,7 @@
                     </div>
                 </template>
             </cust-dialog>
+            <server-status-dialog v-if="showServerStatusDialog" v-model="showServerStatusDialog" />
         </template>
     </cust-page>
 </template>
@@ -169,6 +176,7 @@ import CustMenu             from 'src/components/menu.vue'
 import CustPage             from 'src/components/custom/page.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
 import { processesStore }   from 'src/stores/processes.store'
+import ServerStatusDialog   from 'src/components/serverStatusDialog.vue'
 import moment               from 'moment';
 import { Platform }         from 'quasar'
 const useMainStore                  = mainStore()
@@ -185,7 +193,9 @@ const {
     showConfirmActionDialog,
     confirmActionDialogType,
     processesOffline,
-    processesOnline
+    processesOnline,
+    loading,
+    showServerStatusDialog
 } = storeToRefs(useProcessesStore)
 
 const router = useRouter()
@@ -235,6 +245,18 @@ const menuItems = [
 
 ]
 
+const units = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+
+function calcMemory (mem: number) {
+    let l = 0, n = mem || 0;
+
+    while(n >= 1024 && ++l) {
+        n = n / 1024;
+    }
+    
+    return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+}
+
 onMounted( async () => {
     useProcessesStore.init()
 } )
@@ -244,14 +266,13 @@ watch( selectedLogFile, async () => {
     if (LogScrollArea.value && LogScrollArea.value.getScrollPosition('vertical').top === 0) {
       const scrollTarget = LogScrollArea.value.getScrollTarget();
       LogScrollArea.value.setScrollPosition('vertical', scrollTarget.scrollHeight);
-      console.log(LogScrollArea.value.getScrollPosition('vertical'))
     }
 
 } )
 
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
     .contentHeight {
         min-height: 100px;
     }
@@ -263,4 +284,10 @@ watch( selectedLogFile, async () => {
     .expansionBorder {
         border-bottom: 1px solid $primary;
     }
+
+    body.desktop .q-focus-helper {
+        display: none !important;
+        background: green;
+    }
+
 </style>

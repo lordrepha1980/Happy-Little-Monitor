@@ -3,6 +3,7 @@ module.exports = {
         name   : "Monitor",
         script : "DEBUG=app:* node ./app.js",
         noAutorestart: true,
+        max_memory_restart: "130M",
         watch  : true,
         ignore_watch: [
             "server/database/MongoDB/dataApi/*",
