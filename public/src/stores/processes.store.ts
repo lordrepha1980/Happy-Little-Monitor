@@ -4,7 +4,9 @@ import { extend, Loading, QSpinnerGrid}       from 'quasar'
 import { mainStore } from './main.store'
 import { socketStore }  from './socket.store'
 import Global from 'src/helpers/Global.js'
+import { debug } from 'debug'
 const global = Global({})
+const log = debug('app:process.store')
 
 export interface ILogStore { 
     selectedId: string,
@@ -69,6 +71,8 @@ export const processesStore = defineStore('processes', {
                 this._processesOffline = 0
                 this._processesOnline = 0
                 data.forEach( (proc: any) => {
+                    log('memory', proc.name, proc.monit.memory)
+                    log('cpu', proc.name, proc.monit.cpu)
                     if ( proc.pm2_env.status === 'online' )
                         this._processesOnline += 1
                     else
@@ -76,6 +80,7 @@ export const processesStore = defineStore('processes', {
                 });
                 this._data = data
                 this._serverParams = params
+
                 useMainStore.setReceive()
                 Loading.hide()
                 this._loading = false

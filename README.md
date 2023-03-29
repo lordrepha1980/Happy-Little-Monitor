@@ -1,19 +1,3 @@
-#HLM
-SSH Verbindung erfordert einen SSH Key und ein Passwort
-Passwort: IwidF51980*
-
-1. git clone https://github.com/lordrepha1980/MobAPI.git
-2. npm install
-3. create .env file (example.env)
-4. create config.json file (example.config.json)
-5. uberspace port add and set port in .env DB_PORT
-6. https://lab.uberspace.de/guide_mongodb/?highlight=mongodb
-7. ACHTUNG mongo admin ~/mongodb/setup.js --Port <---- der Port MUSS beim starten angegebn werden
-8. npm install pm2 -g
-9. uberspace port add and set port in .env SERVER_PORT
-10. pm2 start mobapi.config.js 
-11. set web server with `uberspace web backend set / --http --port 123456`
-
 
 # MobAPI
 A node.js API
