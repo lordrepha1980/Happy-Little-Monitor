@@ -81,9 +81,6 @@ export const processesStore = defineStore('processes', {
                 })
 
                 data.forEach( (proc: any) => {
-                    log('memory', proc.name, proc.monit.memory)
-                    log('cpu', proc.name, proc.monit.cpu)
-
                     if ( proc.pm2_env.status === 'online' )
                         this._processesOnline += 1
                     else

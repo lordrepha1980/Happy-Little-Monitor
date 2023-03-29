@@ -59,7 +59,6 @@ const shape = computed( () => {
       d.forEach((item: any, n: any) => {
         const x = (n / totalPoints) * width + stroke;
         const y = h - (item / highestPoint) * h + stroke;
-        console.log(item, 'x:',  x, 'y:', y)
         coordinates.push({ x, y: Math.floor(y) });
       });
       if (!coordinates[0]) {

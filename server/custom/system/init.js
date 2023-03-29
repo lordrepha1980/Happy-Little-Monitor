@@ -30,8 +30,8 @@ module.exports  = {
                     const data = await db.command({ serverStatus: 1 })
                     const ChartData = await mob.get('data/chartdata')
                     for( const item of list) {
-                        await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${count}_memory`, type: "memory", value: item.monit.memory, name: item.name  } } )
-                        await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${count}_cpu`, type: "cpu", value: item.monit.cpu, name: item.name  } } )
+                        await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${item.name}_${count}_memory`, type: "memory", value: item.monit.memory, name: item.name  } } )
+                        await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${item.name}_${count}_cpu`, type: "cpu", value: item.monit.cpu, name: item.name  } } )
                     }
                     const { data: chartpoints } = await ChartData.find( { table: 'chartdata', auth: true, noCheck: true, query: {}, sort: { _id: 1 } } )
                     count++

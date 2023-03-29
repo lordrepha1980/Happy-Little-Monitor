@@ -42,9 +42,6 @@ export const accountStore = defineStore('account', {
             }
 
         },
-        async newPassword() {
-            console.log('new Password')
-        },
         async save() {
             const validForm = await this._form.methods.validate()
 
