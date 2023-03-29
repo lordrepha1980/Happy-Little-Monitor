@@ -34,6 +34,7 @@ export const processesStore = defineStore('processes', {
         _processesOffline: <number> 0,
         _loading: <boolean> false,
         _showServerStatusDialog: <boolean> false,
+        _datapoints: <any> {}
     }),
     getters: {
         data: (state) => state._data,
@@ -54,6 +55,7 @@ export const processesStore = defineStore('processes', {
         processesOffline: (state) => state._processesOffline,
         loading: (state) => state._loading,
         showServerStatusDialog: (state) => state._showServerStatusDialog,
+        datapoints: (state) => state._datapoints,
     },
     actions: {
         async init () {
@@ -70,9 +72,18 @@ export const processesStore = defineStore('processes', {
             io.value.on('process', ( { data, params }: any ) => {
                 this._processesOffline = 0
                 this._processesOnline = 0
+
+                params.chartpoints.forEach( (point: any) => { 
+                    if ( this._datapoints[point.name] === undefined )
+                        this._datapoints[point.name] = {}
+
+                    this._datapoints[point.name][point.type] = point.value
+                })
+
                 data.forEach( (proc: any) => {
                     log('memory', proc.name, proc.monit.memory)
                     log('cpu', proc.name, proc.monit.cpu)
+
                     if ( proc.pm2_env.status === 'online' )
                         this._processesOnline += 1
                     else
@@ -86,6 +97,20 @@ export const processesStore = defineStore('processes', {
                 this._loading = false
                 //TODO set receive after x seconds to false
             })
+        },
+        calcMemory (mem: number, returnNumber?: boolean) { 
+            const units = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+
+            let l = 0, n = mem || 0;
+
+            while(n >= 1024 && ++l) {
+                n = n / 1024;
+            }
+            
+            if ( !returnNumber )
+                return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+            else
+                return parseInt(n.toFixed(n < 10 && l > 0 ? 1 : 0))
         },
         setRecord ({ id, name, errorPath, outPath }: { id: number, name: string, errorPath: string, outPath: string }) {
             this._recordId = id

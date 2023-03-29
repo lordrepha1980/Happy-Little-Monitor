@@ -73,7 +73,7 @@
                             <q-item-section side>
                                 <div class="row items-center" >
                                     <div class="col-12 ellipsis flex items-center" v-if="proc.monit.memory" >
-                                        <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{calcMemory(proc.monit.memory)}}
+                                        <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{useProcessesStore.calcMemory(proc.monit.memory)}}
                                     </div>  
                                 </div>
 
@@ -84,13 +84,23 @@
                         <cust-card :menuBottom="true" >
                             <template #content v-if="proc.pm2_env.status === 'online'">
                                 <div class="row text-h6 q-pb-md q-pl-xs q-col-gutter-xs">
-                                    <div class="col-6 col-sm-4 ellipsis flex items-center" v-if="proc.monit.memory" >
-                                    <q-icon name="fas fa-memory" size="18px" class="q-pr-sm"/> {{calcMemory(proc.monit.memory)}}
+                                    <div class="col-5 col-sm-4 ellipsis items-center" v-if="proc.monit.memory" >
+                                        <q-icon name="fas fa-memory" size="18px" class="q-pr-sm q-pl-xs"/> {{useProcessesStore.calcMemory(proc.monit.memory)}}
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <line-chart type="memory" :name="proc.name"/>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-3 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
+                                    <div class="col-4 col-sm-4 ellipsis items-center" v-if="proc.pm2_env.created_at">
                                         <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm"/> {{proc.monit.cpu}}%
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <line-chart type="cpu" :name="proc.name"/>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-3 col-sm-4 ellipsis flex items-center" v-if="proc.pm2_env.created_at">
+                                    <div class="col-3 col-sm-4 ellipsis items-center" v-if="proc.pm2_env.created_at">
                                         <q-icon name="refresh" size="20px" class="q-pr-sm"/> {{proc.pm2_env.restart_time}}
                                     </div>
                                 </div>
@@ -177,11 +187,14 @@ import CustPage             from 'src/components/custom/page.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
 import { processesStore }   from 'src/stores/processes.store'
 import ServerStatusDialog   from 'src/components/serverStatusDialog.vue'
+import LineChart            from 'src/components/lineChart.vue'
 import moment               from 'moment';
 import { Platform }         from 'quasar'
+
 const useMainStore                  = mainStore()
 
 const useProcessesStore = processesStore()
+
 const { 
     data: processes, 
     recordId, 
@@ -195,10 +208,9 @@ const {
     processesOffline,
     processesOnline,
     loading,
-    showServerStatusDialog
+    showServerStatusDialog,
 } = storeToRefs(useProcessesStore)
 
-const router = useRouter()
 const LogScrollArea = ref(null)
 
 const menuItems = [
@@ -244,18 +256,6 @@ const menuItems = [
     },
 
 ]
-
-const units = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-
-function calcMemory (mem: number) {
-    let l = 0, n = mem || 0;
-
-    while(n >= 1024 && ++l) {
-        n = n / 1024;
-    }
-    
-    return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
-}
 
 onMounted( async () => {
     useProcessesStore.init()

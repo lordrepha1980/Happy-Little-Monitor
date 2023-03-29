@@ -12,7 +12,7 @@ const sys           = require('systeminformation')
 module.exports  = {
     init: async (io) => {
         let intervallPM2 = null
-
+        let count = 0
         pm2.connect(async (err) => {
             if (err) {
                 clearInterval(intervallPM2)
@@ -25,9 +25,19 @@ module.exports  = {
             intervallPM2 = setInterval( async () => {
 
                 pm2.list(async function(err, list) {
+                    if ( count === 1 )
+                        count = 0
                     const data = await db.command({ serverStatus: 1 })
-      
+                    const ChartData = await mob.get('data/chartdata')
+                    for( const item of list) {
+                        await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${count}_memory`, type: "memory", value: item.monit.memory, name: item.name  } } )
+                        await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${count}_cpu`, type: "cpu", value: item.monit.cpu, name: item.name  } } )
+                    }
+                    const { data: chartpoints } = await ChartData.find( { table: 'chartdata', auth: true, noCheck: true, query: {}, sort: { _id: 1 } } )
+                    count++
+
                     io.emit('process', { data: list, params: {
+                        chartpoints,
                         node_version: process.version,
                         node_os: process.platform,
                         mongoDB_connections: data.connections,

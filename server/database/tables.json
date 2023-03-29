@@ -1,5 +1,6 @@
 {
    "user": "user",
    "rights": "rights",
-   "company": "company"
+   "company": "company",
+   "chartdata": "chartdata"
 }
