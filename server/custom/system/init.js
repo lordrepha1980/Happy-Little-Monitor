@@ -78,8 +78,6 @@ module.exports  = {
                         nginxLog.error = error
                     }
 
-                    console.log(nginxLog)
-
                     io.emit('process', { data: list, params: {
                         nginxLog,
                         chartpoints,
