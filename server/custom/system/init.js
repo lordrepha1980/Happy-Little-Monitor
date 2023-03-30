@@ -52,7 +52,7 @@ module.exports  = {
                 });
 
             });
-        }, 1000)
+        }, 2000)
 
         const valueObject = {
             mem: 'free, used, total',

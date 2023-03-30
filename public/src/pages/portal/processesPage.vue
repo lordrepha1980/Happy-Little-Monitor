@@ -88,7 +88,7 @@
                                         <q-icon name="fas fa-memory" size="18px" class="q-pr-sm q-pl-xs"/> {{useProcessesStore.calcMemory(proc.monit.memory)}}
                                         <div class="row">
                                             <div class="col-12">
-                                                <line-chart type="memory" :name="proc.name"/>
+                                                <sparkle-chart type="memory" :name="proc.name"/>
                                             </div>
                                         </div>
                                     </div>
@@ -96,7 +96,7 @@
                                         <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm"/> {{proc.monit.cpu}}%
                                         <div class="row">
                                             <div class="col-12">
-                                                <line-chart type="cpu" :name="proc.name"/>
+                                                <sparkle-chart type="cpu" :name="proc.name"/>
                                             </div>
                                         </div>
                                     </div>
@@ -187,7 +187,7 @@ import CustPage             from 'src/components/custom/page.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
 import { processesStore }   from 'src/stores/processes.store'
 import ServerStatusDialog   from 'src/components/serverStatusDialog.vue'
-import LineChart            from 'src/components/lineChart.vue'
+import SparkleChart            from 'src/components/sparkleChart.vue'
 import moment               from 'moment';
 import { Platform }         from 'quasar'
 

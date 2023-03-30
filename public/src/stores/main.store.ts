@@ -32,6 +32,7 @@ export const mainStore = defineStore('main', {
         _token: <string | null> null,
         _user: <IUserData> {},
         _receive: <boolean> false,
+        _connected: <boolean> false,
     }),
     getters: {
         company: (state) => state._company,
@@ -42,7 +43,9 @@ export const mainStore = defineStore('main', {
     },
     actions: {
         setReceive() {
-            this._receive = !this._receive  
+            setInterval(() => {
+                this._receive = !this._receive  
+            }, 1000)
         },
         async getCompany() {
             const {data} = await dataService.customApi({ endpoint: 'main', action: 'getCompany' })

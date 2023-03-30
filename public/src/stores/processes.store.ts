@@ -89,7 +89,6 @@ export const processesStore = defineStore('processes', {
                 this._data = data
                 this._serverParams = params
 
-                useMainStore.setReceive()
                 Loading.hide()
                 this._loading = false
                 //TODO set receive after x seconds to false

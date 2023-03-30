@@ -10,7 +10,7 @@
                     <span v-else >HLM</span>
                     <toolbar-header />
                 </q-toolbar-title>
-                <q-icon color="green" v-if="useMainStore._receive" name="blur_on" size="30px"/>
+                <q-icon color="green" v-if="useMainStore._receive && useMainStore._connected" name="blur_on" size="30px"/>
                 <q-icon color="green" v-else name="" size="30px"/>
                 <q-btn-dropdown icon="supervised_user_circle" non-selectable flat square unelevated label="Account" color="primary">
                     <q-list square>
@@ -53,6 +53,7 @@ onBeforeMount( async () => {
         if ( login ) {
             const useSocketStore        = socketStore()
             await useSocketStore.init()
+            useMainStore.setReceive()
             loading.value = true
         }
     } catch (error) {

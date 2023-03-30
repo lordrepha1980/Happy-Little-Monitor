@@ -31,6 +31,7 @@ export const socketStore = defineStore('socket', {
                     const socket = this._socket;
 
                     socket.on('connect', () => {
+                        useMainStore._connected = true;
                         log('Socket connected')
                         resolve(true);
                     })
@@ -39,7 +40,7 @@ export const socketStore = defineStore('socket', {
                         log('Socket disconnected');
                         this._socket = {} as Socket;
                         resolve(true);
-                        mainStore()._receive = false
+                        useMainStore._connected = false;
                     })
 
                 } catch (error) {
