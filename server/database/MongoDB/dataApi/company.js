@@ -9,6 +9,7 @@ const moment        = require('moment');
 const ClassRouter   = require( _dirname + '/server/database/classRouter.js');
 const mob           = new ClassRouter();
 const globalHooks   = GlobalHooks();
+const defaultCollection = 'company';
 
 
 
@@ -23,6 +24,9 @@ class company extends Data {
     
         async update( request ) {
             try {
+                if ( request && !request.table )
+                    request.table = defaultCollection
+
                 
                 if ( globalHooks.updateBefore )
                     await globalHooks.updateBefore( { 
@@ -66,6 +70,9 @@ class company extends Data {
     
         async findOne( request ) {
             try {
+                if ( request && !request.table )
+                    request.table = defaultCollection
+
                 
                 if ( globalHooks.findOneBefore )
                     await globalHooks.findOneBefore( { 
@@ -108,6 +115,9 @@ class company extends Data {
 
     
         async find( request ) {
+            if ( request && !request.table )
+                request.table = defaultCollection
+
             try {
                 
                 if ( globalHooks.findBefore )
@@ -151,6 +161,9 @@ class company extends Data {
     
         async delete( request ) {
             try {
+                if ( request && !request.table )
+                    request.table = defaultCollection
+
                 
                 if ( globalHooks.deleteBefore )
                     await globalHooks.deleteBefore( { 
@@ -192,6 +205,9 @@ class company extends Data {
 
     
         async count( request ) {
+            if ( request && !request.table )
+                request.table = defaultCollection
+
             try {
                 
 

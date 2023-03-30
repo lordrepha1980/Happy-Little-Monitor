@@ -1,5 +1,5 @@
 <template>
-    <cust-page v-if="!loading" :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 300 : 220">
+    <cust-page v-if="!loading" :noGrid="true" :noMenu="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 90 : 0">
         <template #header>
             <div class="row">
                 <div class="col-6 text-subtitle2 text-primary">
@@ -12,7 +12,7 @@
                 </div>
             </div>
         </template>
-        <template #menu>
+        <template #content>
             <cust-card class="q-mt-sm">
                 <template #content>
                     <div class="row text-h6 text-white flex items-center">
@@ -45,12 +45,28 @@
                         <div class="col-6 col-sm-4 ellipsis">
                             <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_uptime }}
                         </div>
+                        <template v-if="serverParams.nginxLog && !serverParams.nginxLog.error" >
+                            <div class="col-12 text-caption text-primary q-py-sm">
+                                Nginx
+                                <q-separator dark />
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fa-solid fa-arrow-right-to-city" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.activeConnections }}
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fa-solid fa-eye" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.connections.reading}}
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fa-solid fa-pencil" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.connections.writing}}
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fa-solid fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.connections.waiting}}
+                            </div>
+                        </template>
                     </div>
                 </template>
             </cust-card>
             <q-separator dark class="q-pa-none"/>
-        </template>
-        <template #content>
             <q-list class="rounded-borders bg-grey-9 text-white">
                 <template v-for="proc of processes" :key="proc.pm_id">
                     <q-expansion-item
@@ -65,9 +81,8 @@
                                 <q-icon name="fas fa-server" v-if="proc.pm2_env.status !== 'online'" color="red-5" text-color="white" />
                                 <q-icon name="fas fa-server" v-else color="green-5" text-color="white" />
                             </q-item-section>
-
-                            <q-item-section class="text-h6">
-                                {{proc.name}}
+                            <q-item-section class="text-h6 ellipsis">
+                                {{ proc.name }}
                             </q-item-section>
 
                             <q-item-section side>
@@ -120,36 +135,7 @@
                     </q-expansion-item>
                 </template>
             </q-list>
-            <q-dialog v-model="openLogProcess" persistent maximized>
-                <q-card class="bg-dark text-white">
-                    <q-card-section>
-                        <q-toolbar class="bg-grey-9 text-white">
-                            <q-toolbar-title>
-                                Log ({{ recordName }})
-                            </q-toolbar-title>
-                            <q-circular-progress
-                                @click="useProcessesStore.logProcess"
-                                show-value
-                                class="text-white q-mr-xl"
-                                :value="timer * 10"
-                                size="40px"
-                                :thickness="0.2"
-                                color="primary"
-                                center-color="grey-8"
-                                track-color="transparent"
-                            >
-                                <span class="text-body2">{{ 10 - timer }}s</span>
-                            </q-circular-progress>
-                            <q-btn flat dense icon="close" @click="useProcessesStore.setOpenLogProcess" />
-                        </q-toolbar>
-                    </q-card-section>
-                    <q-card-section class="row items-center logbook">
-                        <q-scroll-area ref="LogScrollArea" style="width: 100%; height: calc(100vh - 200px);">
-                            <span class="q-ml-sm" v-text="selectedLogFile"></span>
-                        </q-scroll-area>
-                    </q-card-section>
-                </q-card>
-            </q-dialog>
+            
             <cust-dialog 
                 v-if="showConfirmActionDialog" 
                 :show="showConfirmActionDialog" 
@@ -170,6 +156,7 @@
                     </div>
                 </template>
             </cust-dialog>
+            <process-log-dialog v-if="openLogProcess" v-model="openLogProcess" />
             <server-status-dialog v-if="showServerStatusDialog" v-model="showServerStatusDialog" />
         </template>
     </cust-page>
@@ -190,18 +177,13 @@ import ServerStatusDialog   from 'src/components/serverStatusDialog.vue'
 import SparkleChart            from 'src/components/sparkleChart.vue'
 import moment               from 'moment';
 import { Platform }         from 'quasar'
-
-const useMainStore                  = mainStore()
-
+import ProcessLogDialog     from 'src/components/processLogDialog.vue'
 const useProcessesStore = processesStore()
 
 const { 
     data: processes, 
-    recordId, 
     serverParams, 
-    openLogProcess, 
     selectedLogFile, 
-    timer, 
     recordName,
     showConfirmActionDialog,
     confirmActionDialogType,
@@ -209,6 +191,7 @@ const {
     processesOnline,
     loading,
     showServerStatusDialog,
+    openLogProcess,
 } = storeToRefs(useProcessesStore)
 
 const LogScrollArea = ref(null)

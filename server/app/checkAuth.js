@@ -16,7 +16,7 @@ module.exports = class checkAuth {
             }
         }
         catch (error) {
-            throw error;
+            throw { error };
         }
         
     }

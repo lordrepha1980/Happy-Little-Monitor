@@ -21,7 +21,7 @@ const { datapoints } = storeToRefs(useProcessesStore)
 const stroke = 2
 const width = 100
 const height = 20
-const res = ref<any>([0, 0, 0, 0, 0, 0])
+const res = ref<any>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 const props = defineProps<{
     name: string,

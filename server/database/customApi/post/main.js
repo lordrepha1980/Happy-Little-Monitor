@@ -56,9 +56,9 @@ class main extends Custom {
 
     async getCompany( {body, ctx} ) {
         const Company = mob.get('data/company')
-        const company = await Company.findOne( { ctx, table: 'company', noCheck: true, auth: true, query: {} } )
+        const company = await Company.findOne( { ctx, noCheck: true, auth: true, query: {} } )
 
-        ctx.body = { data: company }
+        ctx.body = company
     }
 
     async sendConfirmMail( {to, body, ctx, user, confirmId} ) {
