@@ -8,11 +8,58 @@ const pm2           = require('pm2')
 const ip            = require('ip')
 const os            = require('os')
 const sys           = require('systeminformation')
+const http          = require('http')
+const { Curl }      = require("node-libcurl");
+const curl          = new Curl()
+curl.setOpt( Curl.option.URL, 'http://127.0.0.1/nginx_status' );
 
 module.exports  = {
     init: async (io) => {
         let intervallPM2 = null
         let count = 0
+
+        function nginxStat () {
+            return new Promise (( resolve, reject ) => {
+                curl.on( 'end', function( statusCode, body, headers ) {
+                    const nginxStatus = {};
+
+                    // parse the number of active connections
+                    const activeConnections = body.match(/Active connections: (\d+)/)[1];
+                    nginxStatus.activeConnections = parseInt(activeConnections);
+
+                    // parse the server metrics
+                    const serverMetrics = body.match(/server accepts handled requests\n\s*(\d+)\s+(\d+)\s+(\d+)/);
+                    nginxStatus.server = {
+                        accepts: parseInt(serverMetrics[1]),
+                        handled: parseInt(serverMetrics[2]),
+                        requests: parseInt(serverMetrics[3])
+                    };
+
+                    // parse the connection states
+                    const connectionStates = body.match(/Reading: (\d+) Writing: (\d+) Waiting: (\d+)/);
+                    nginxStatus.connections = {
+                        reading: parseInt(connectionStates[1]),
+                        writing: parseInt(connectionStates[2]),
+                        waiting: parseInt(connectionStates[3])
+                    };
+
+                    resolve(nginxStatus)
+                });
+                
+                curl.on( 'error', function( err, curlErrorCode ) {
+                    resolve({
+                        error: err.message,
+                        activeConnections: 7,
+                        server: { accepts: 2777, handled: 2777, requests: 6707 },
+                        connections: { reading: 0, writing: 3, waiting: 4 }
+                    })
+                    //curl.close();
+                
+                });
+                
+                curl.perform();
+            })
+        }
 
         intervallPM2 = setInterval( async () => {
             pm2.connect(async (err) => {
@@ -37,7 +84,10 @@ module.exports  = {
                     const { data: chartpoints } = await ChartData.find( { table: 'chartdata', auth: true, noCheck: true, query: {}, sort: { _id: 1 } } )
                     count++
 
+                    const nginxLog = await nginxStat()
+                    console.log()
                     io.emit('process', { data: list, params: {
+                        nginxLog,
                         chartpoints,
                         node_version: process.version,
                         node_os: process.platform,
@@ -52,7 +102,7 @@ module.exports  = {
                 });
 
             });
-        }, 2000)
+        }, 1000)
 
         const valueObject = {
             mem: 'free, used, total',
