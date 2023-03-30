@@ -13,16 +13,17 @@ module.exports  = {
     init: async (io) => {
         let intervallPM2 = null
         let count = 0
-        pm2.connect(async (err) => {
-            if (err) {
-                clearInterval(intervallPM2)
-                debug(err);
-                return
-            }
 
-            const { db, client } = await mob.db()
+        intervallPM2 = setInterval( async () => {
+            pm2.connect(async (err) => {
+                if (err) {
+                    clearInterval(intervallPM2)
+                    debug(err);
+                    return
+                }
 
-            intervallPM2 = setInterval( async () => {
+                const { db, client } = await mob.db()
+
 
                 pm2.list(async function(err, list) {
                     if ( count === 1 )
@@ -46,9 +47,12 @@ module.exports  = {
                         server_uptime: moment.duration(os.uptime(), 'seconds').humanize(),
                         ip_address: ip.address()
                     } } )
+                    pm2.disconnect()
+                    client.close()
                 });
-            }, 1000)
-        });
+
+            });
+        }, 1000)
 
         const valueObject = {
             mem: 'free, used, total',

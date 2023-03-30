@@ -30,11 +30,11 @@ const props = defineProps<{
 
 // setInterval( () => {
 //     res.value.shift()
-//     res.value.push(Math.floor(Math.random() * 20))
+//     res.value.push(0)
 // }, 1000)
 
 watch(datapoints, (val) => {
-    if (props.name && props.type && val[props.name][props.type] ) {
+    if (props.name && props.type && val[props.name][props.type] !== undefined ) {
         res.value.shift()
         switch( props.type ) {
             case 'cpu':
