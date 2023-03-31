@@ -19,7 +19,7 @@ export const accountStore = defineStore('account', {
     getters: {
         data: (state) => state._data,
         record: (state) => state._record,
-        logStore: (state) => state._logStore,
+        logStore: (state) => state._logStore
     },
     actions: {
         async init () {
@@ -37,6 +37,9 @@ export const accountStore = defineStore('account', {
             const result = await dataService.dataApi( { endpoint: 'user', action: 'findOne', data: { query: { username  }, table: 'user' } })
 
             if ( result?.data ) {
+                if ( result.data.nginxStatus === undefined )
+                    result.data.nginxStatus = true
+                    
                 this._data = result.data
                 this._record = extend(true, {}, result.data)
             }

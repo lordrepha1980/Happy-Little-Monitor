@@ -126,11 +126,9 @@ module.exports  = {
 
         try{
             intervallNginx = setInterval( async () => {
-                console.log(111)
                 try{
                     const { data: nginxRawLog } = await curly.get('http://127.0.0.1/nginx_status');
                     nginxLog = nginxStat(nginxRawLog)
-                    console.log(nginxLog)
                     io.emit('nginxStatus', { data: nginxLog })
                 } catch (error) {
                     //nginxLog.error = error.message

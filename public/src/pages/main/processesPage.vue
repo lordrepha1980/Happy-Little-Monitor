@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col-6 text-subtitle2 text-primary">
                     <q-icon name="layers" />
-                    Processes
+                    Status
                 </div>
                 <div class="col-6 text-right">
                     <q-icon name="fas fa-server" color="red-5" size="10px" class="q-pr-xs" /> {{ processesOffline }}
