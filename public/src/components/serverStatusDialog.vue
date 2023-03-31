@@ -34,7 +34,7 @@ import { serverstatusStore }    from 'src/stores/serverstatus.store'
 import { onMounted }            from 'vue'
 
 const useProcessesStore             = processesStore()
-const { showServerStatusDialog, timer }    = storeToRefs(useProcessesStore)
+const { showServerStatusDialog, timer, selectedLogFile }    = storeToRefs(useProcessesStore)
 
 const useServerStatusStore          = serverstatusStore()
 const { data }                    = storeToRefs(useServerStatusStore)

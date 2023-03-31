@@ -52,34 +52,39 @@ module.exports  = {
 
                 const { db, client } = await mob.db()
 
+                
+
 
                 pm2.list(async function(err, list) {
                     if ( count === 1 )
                         count = 0
                     const data = await db.command({ serverStatus: 1 })
                     const ChartData = await mob.get('data/chartdata')
+
+                    pm2Procs = []
+
                     for( const item of list) {
+                        pm2Procs.push({
+                            name: item.name,
+                            pm_id: item.pm_id,
+                            monit: item.monit,
+                            pm2_env: {
+                                created_at: item.pm2_env.created_at,
+                                pm_out_log_path: item.pm2_env.pm_out_log_path,
+                                pm_err_log_path: item.pm2_env.pm_err_log_path,
+                                restart_time: item.pm2_env.restart_time,
+                                unique_id: item.pm2_env.unique_id,
+                                status: item.pm2_env.status,
+                            }
+                        })
                         await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${item.name}_${count}_memory`, type: "memory", value: item.monit.memory, name: item.name  } } )
                         await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${item.name}_${count}_cpu`, type: "cpu", value: item.monit.cpu, name: item.name  } } )
                     }
                     const { data: chartpoints } = await ChartData.find( { table: 'chartdata', auth: true, noCheck: true, query: {}, sort: { _id: 1 } } )
                     count++
 
-                    let nginxLog = {
-                        activeConnections: 7,
-                        server: { accepts: 2777, handled: 2777, requests: 6707 },
-                        connections: { reading: 0, writing: 3, waiting: 4 }
-                    }   
-
-                    try{
-                        const { data: nginxRawLog } = await curly.get('http://127.0.0.1/nginx_status');
-                        nginxLog = nginxStat(nginxRawLog)
-                    } catch (error) {
-                        nginxLog.error = error
-                    }
-
-                    io.emit('process', { data: list, params: {
-                        nginxLog,
+                    io.emit('process', { data: pm2Procs, params: {
+                        nginxLog: {error: true},
                         chartpoints,
                         node_version: process.version,
                         node_os: process.platform,
@@ -105,10 +110,36 @@ module.exports  = {
             //fsSize: 'size, used, available',
         }
 
+        //server status
         sys.observe(valueObject, 2000, (data) => {
             io.emit('serverStatus', { data })
         })
 
+        //nginx status
+        let nginxLog = {
+            activeConnections: 7,
+            server: { accepts: 2777, handled: 2777, requests: 6707 },
+            connections: { reading: 0, writing: 3, waiting: 4 }
+        } 
+
+        let intervallNginx = null
+
+        try{
+            intervallNginx = setInterval( async () => {
+                console.log(111)
+                try{
+                    const { data: nginxRawLog } = await curly.get('http://127.0.0.1/nginx_status');
+                    nginxLog = nginxStat(nginxRawLog)
+                    console.log(nginxLog)
+                    io.emit('nginxStatus', { data: nginxLog })
+                } catch (error) {
+                    //nginxLog.error = error.message
+                    io.emit('nginxStatus', { data: nginxLog })
+                }
+            }, 5000)
+        } catch (error) {
+            clearInterval(intervallNginx)
+        }
     }
 }
 

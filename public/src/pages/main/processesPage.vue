@@ -45,22 +45,31 @@
                         <div class="col-6 col-sm-4 ellipsis">
                             <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_uptime }}
                         </div>
-                        <template v-if="serverParams.nginxLog && !serverParams.nginxLog.error" >
+                        <template v-if="nginxRecord && !nginxRecord.error && nginxRecord.connections" >
                             <div class="col-12 text-caption text-primary q-py-sm">
                                 Nginx
                                 <q-separator dark />
                             </div>
                             <div class="col-6 col-sm-4 ellipsis">
-                                <q-icon name="fa-solid fa-arrow-right-to-city" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.activeConnections }}
+                                <q-icon name="fa-solid fa-arrow-right-to-city" size="20px" color="white" class="q-pr-sm"/> {{ nginxRecord.activeConnections }}
                             </div>
                             <div class="col-6 col-sm-4 ellipsis">
-                                <q-icon name="fa-solid fa-eye" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.connections.reading}}
+                                <q-icon name="fa-solid fa-eye" size="20px" color="white" class="q-pr-sm"/> {{ nginxRecord.connections.reading}}
                             </div>
                             <div class="col-6 col-sm-4 ellipsis">
-                                <q-icon name="fa-solid fa-pencil" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.connections.writing}}
+                                <q-icon name="fa-solid fa-pencil" size="20px" color="white" class="q-pr-sm"/> {{ nginxRecord.connections.writing}}
                             </div>
                             <div class="col-6 col-sm-4 ellipsis">
-                                <q-icon name="fa-solid fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.nginxLog.connections.waiting}}
+                                <q-icon name="fa-solid fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ nginxRecord.connections.waiting}}
+                            </div>
+                        </template>
+                        <template v-else >
+                            <div class="col-12 text-caption text-primary q-py-sm">
+                                Nginx
+                                <q-separator dark />
+                            </div>
+                            <div class="col-12  ellipsis">
+                                <q-linear-progress dark rounded indeterminate color="primary" class="q-mt-sm" />
                             </div>
                         </template>
                     </div>
@@ -173,6 +182,7 @@ import CustMenu             from 'src/components/menu.vue'
 import CustPage             from 'src/components/custom/page.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
 import { processesStore }   from 'src/stores/processes.store'
+import { nginxStatusStore }      from 'src/stores/nginxstatus.store'
 import ServerStatusDialog   from 'src/components/serverStatusDialog.vue'
 import SparkleChart            from 'src/components/sparkleChart.vue'
 import moment               from 'moment';
@@ -180,10 +190,11 @@ import { Platform }         from 'quasar'
 import ProcessLogDialog     from 'src/components/processLogDialog.vue'
 const useProcessesStore = processesStore()
 
+const useNginxStatusStore = nginxStatusStore()
+const { record: nginxRecord } = storeToRefs(useNginxStatusStore)
 const { 
     data: processes, 
-    serverParams, 
-    selectedLogFile, 
+    serverParams,
     recordName,
     showConfirmActionDialog,
     confirmActionDialogType,
@@ -193,8 +204,6 @@ const {
     showServerStatusDialog,
     openLogProcess,
 } = storeToRefs(useProcessesStore)
-
-const LogScrollArea = ref(null)
 
 const menuItems = [
     {
@@ -242,15 +251,7 @@ const menuItems = [
 
 onMounted( async () => {
     useProcessesStore.init()
-} )
-
-watch( selectedLogFile, async () => {
-    await nextTick()
-    if (LogScrollArea.value && LogScrollArea.value.getScrollPosition('vertical').top === 0) {
-      const scrollTarget = LogScrollArea.value.getScrollTarget();
-      LogScrollArea.value.setScrollPosition('vertical', scrollTarget.scrollHeight);
-    }
-
+    useNginxStatusStore.init()
 } )
 
 </script>

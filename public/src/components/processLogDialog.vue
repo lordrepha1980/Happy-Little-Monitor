@@ -34,7 +34,9 @@
 import { processesStore }       from 'src/stores/processes.store'
 import { storeToRefs }          from 'pinia';
 import { serverstatusStore }    from 'src/stores/serverstatus.store'
-import { onMounted }            from 'vue'
+import { onMounted, watch, nextTick, ref }            from 'vue'
+
+const LogScrollArea = ref(null)
 
 const useProcessesStore             = processesStore()
 const { openLogProcess, recordName, timer, selectedLogFile }    = storeToRefs(useProcessesStore)
@@ -42,6 +44,15 @@ const { openLogProcess, recordName, timer, selectedLogFile }    = storeToRefs(us
 const props = defineProps<{
     value: boolean
 }>()
+
+watch( selectedLogFile, async () => {
+    await nextTick()
+    if (LogScrollArea.value && LogScrollArea.value.getScrollPosition('vertical').top === 0) {
+      const scrollTarget = LogScrollArea.value.getScrollTarget();
+      LogScrollArea.value.setScrollPosition('vertical', scrollTarget.scrollHeight);
+    }
+
+} )
 
 </script>
 

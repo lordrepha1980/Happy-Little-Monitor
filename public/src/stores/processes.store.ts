@@ -72,7 +72,7 @@ export const processesStore = defineStore('processes', {
             io.value.on('process', ( { data, params }: any ) => {
                 this._processesOffline = 0
                 this._processesOnline = 0
-console.log('1111')
+
                 params.chartpoints.forEach( (point: any) => { 
                     if ( this._datapoints[point.name] === undefined )
                         this._datapoints[point.name] = {}
