@@ -1,5 +1,5 @@
 <template>
-    <cust-page v-if="!loading" :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 90 : 0">
+    <cust-page v-if="!loading" :noGrid="true" :noMenu="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 90 : 0">
         <template #header>
             <div class="row">
                 <div class="col-6 text-subtitle2 text-primary">
@@ -8,24 +8,42 @@
                 </div>
             </div>
         </template>
-        <template #menu>
-            <cust-menu :struct="menu" :propClass="'bg-grey-9'" storeName="account" class="q-mt-sm" />
-        </template>
         <template #content>
             <cust-form stateName="account">
                 <template #content>
-                    <div class="row">
-                        <div class="col-12 text-h6 text-white q-mt-sm q-ml-sm">
+                    <div class="row text-white text-body1">
+                        <div class="col-12 text-h6 text-white q-mt-sm q-pl-sm">
                             Serverdata
                         </div>
                         <div class="col-12">
-                            <cust-toggle label="Show Server" v-model="form.serverStatus" />
+                            <q-separator dark/>
+                        </div>
+                        <div class="col-6 flex items-center q-pl-md">
+                            Show Server
+                        </div>
+                        <div class="col-6 flex justify-end">
+                            <cust-toggle label="" v-model="form.serverStatus" />
                         </div>
                         <div class="col-12">
-                            <cust-toggle label="Show MongoDB" v-model="form.mongodbStatus" />
+                            <q-separator dark/>
+                        </div>
+                        <div class="col-6 flex items-center q-pl-md">
+                            Show MongoDB
+                        </div>
+                        <div class="col-6 flex justify-end">
+                            <cust-toggle label="" v-model="form.mongodbStatus" />
                         </div>
                         <div class="col-12">
-                            <cust-toggle label="Show Nginx" v-model="form.nginxStatus" />
+                            <q-separator dark/>
+                        </div>
+                        <div class="col-6 flex items-center q-pl-md">
+                            Show Nginx
+                        </div>
+                        <div class="col-6 flex justify-end">
+                            <cust-toggle label="" v-model="form.nginxStatus" />
+                        </div>
+                        <div class="col-12">
+                            <q-separator dark/>
                         </div>
                     </div>
                 </template>
@@ -59,6 +77,10 @@ const menu = ref([
         action: 'save',
     }
 ])
+
+watch( form.value, async (val) => {
+    await useAccountStore.save()
+})
 
 </script>
 

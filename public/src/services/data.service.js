@@ -243,14 +243,14 @@ export const dataService = {
                 data
             })
 
-            if ( !result.error )
+            // if ( !result.error )
+            //     global.Note({
+            //         message: 'Successfully saved',
+            //         type: 'success',
+            //     })
+            if ( result.error )
                 global.Note({
-                    message: 'Daten erfolgreich gespeichert',
-                    type: 'success',
-                })
-            else
-                global.Note({
-                    message: 'Fehler beim speichern',
+                    message: 'Error while saving',
                     type: 'error',
                 })
 

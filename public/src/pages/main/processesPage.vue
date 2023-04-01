@@ -83,6 +83,8 @@
             <q-list class="rounded-borders bg-grey-9 text-white">
                 <template v-for="proc of processes" :key="proc.pm_id">
                     <q-expansion-item
+                        :default-opened="accountRecord[proc.pm_id]"
+                        @click="setExpand(proc.pm_id)"
                         icon="fas fa-server"
                         :label="proc.name"
                         :disableHeader="false" 
@@ -137,7 +139,7 @@
                                         Created at: {{`${moment(proc.pm2_env.created_at).format('YYYY-MM-DD HH:mm')}` }}
                                     </div>
                                     <div class="col-12 col-sm-4" v-if="proc.pm2_env.created_at">
-                                        Uptime: {{`${moment(proc.pm2_env.pm_uptime).fromNow(proc.pm2_env.created_at)}` }}
+                                        Uptime: {{`${moment(proc.pm2_env.created_at).fromNow(proc.pm2_env.pm_uptime)}` }}
                                     </div>
                                 </div>
                             </template>
@@ -212,6 +214,11 @@ const {
     showServerStatusDialog,
     openLogProcess,
 } = storeToRefs(useProcessesStore)
+
+async function setExpand(item: string) {
+    useAccountStore._record[item] = useAccountStore._record[item] ? false : true
+    await useAccountStore.save()
+}
 
 const menuItems = [
     {
