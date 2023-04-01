@@ -10,11 +10,26 @@ const os            = require('os')
 const sys           = require('systeminformation')
 const http          = require('http')
 const { curly }      = require("node-libcurl");
+const uid           = require('uuid')
 
 module.exports  = {
     init: async (io) => {
         let intervallPM2 = null
         let count = 0
+
+        function calcBytes (mem) { 
+            const units = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+
+            let l = 0
+            let n = mem || 0
+
+            while(n >= 1000 && ++l) {
+                n = n / 1000;
+            }
+            
+            
+            return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+        }
 
         function nginxStat (body) {
             const nginxStatus = {};
@@ -52,12 +67,7 @@ module.exports  = {
 
                 const { db, client } = await mob.db()
 
-                
-
-
                 pm2.list(async function(err, list) {
-                    if ( count === 1 )
-                        count = 0
                     const data = await db.command({ serverStatus: 1 })
                     const ChartData = await mob.get('data/chartdata')
 
@@ -81,7 +91,6 @@ module.exports  = {
                         await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${item.name}_${count}_cpu`, type: "cpu", value: item.monit.cpu, name: item.name  } } )
                     }
                     const { data: chartpoints } = await ChartData.find( { table: 'chartdata', auth: true, noCheck: true, query: {}, sort: { _id: 1 } } )
-                    count++
 
                     io.emit('process', { data: pm2Procs, params: {
                         nginxLog: {error: true},
@@ -106,12 +115,40 @@ module.exports  = {
             currentLoad: 'avgLoad, currentLoad, cpus',
             cpu: '*',
             osInfo: 'platform, release',
-            system: 'model, manufacturer'
+            system: 'model, manufacturer',
+            networkStats: '*'
             //fsSize: 'size, used, available',
         }
 
         //server status
-        sys.observe(valueObject, 2000, (data) => {
+        sys.observe(valueObject, 1000, async (data) => {
+
+            //Network
+            const Network = await mob.get('data/network')
+            const {data: oldRes} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
+            
+            if ( oldRes && oldRes.rx_sec ) {
+                oldRes.rx_sec += data.networkStats[0].rx_sec || 0
+                oldRes.rx_human = calcBytes(oldRes.rx_sec)
+            }
+
+            if ( oldRes && oldRes.tx_sec ) {
+                oldRes.tx_sec += data.networkStats[0].tx_sec || 0
+                oldRes.tx_human = calcBytes(oldRes.tx_sec)
+            }
+
+            const res = await Network.update( { io, auth: true, noCheck: true, 
+                query: { _id: moment().format('YYYY-MM')},
+                body: oldRes || {
+                    _id: moment().format('YYYY-MM'),
+                    rx_sec: data.networkStats[0].rx_sec || 0,
+                    tx_sec: data.networkStats[0].tx_sec || 0,
+                    tx_human: calcBytes(data.networkStats[0].tx_sec),
+                    rx_human: calcBytes(data.networkStats[0].rx_sec),
+                } 
+            } )
+
+            io.emit('networkStatus', { data: res.data })
             io.emit('serverStatus', { data })
         })
 

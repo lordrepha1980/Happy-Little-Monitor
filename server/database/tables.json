@@ -2,5 +2,6 @@
    "user": "user",
    "rights": "rights",
    "company": "company",
-   "chartdata": "chartdata"
+   "chartdata": "chartdata",
+   "network": "network"
 }

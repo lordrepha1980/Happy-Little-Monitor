@@ -1,5 +1,5 @@
 <template>
-    <div class="row bg-dark" style="min-height: 30px">
+    <div class="row" :class="propClass || 'bg-dark'" style="min-height: 30px">
         <div class="col-12 flex justify-end">
             <template v-for="btn of struct">
                 <q-btn    
@@ -56,6 +56,10 @@ const props = defineProps({
     },
     remove: {
         type: String || Object,
+        default: ''
+    },
+    propClass: {
+        type: String,
         default: ''
     }
 })

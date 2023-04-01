@@ -24,6 +24,15 @@
                             </q-item-section>
                         </q-item>
                         <q-separator class="bg-grey-7" />
+                        <q-item class="bg-dark text-white" clickable square flat v-close-popup @click="clickMenu('traffic')">
+                            <q-item-section avatar>
+                                <q-icon name="swap_horiz" size="xs"/> 
+                            </q-item-section>
+                            <q-item-section class="text-right text-bold">
+                                <q-item-label>Traffic</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                        <q-separator class="bg-grey-7" />
                         <q-item class="bg-dark text-white" clickable square flat v-close-popup @click="clickMenu('settings')">
                             <q-item-section avatar>
                                 <q-icon name="settings" size="xs"/> 
@@ -52,10 +61,11 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, watch }                   from 'vue'
+import { onBeforeMount, onMounted, ref, watch }                   from 'vue'
 import { mainStore }                            from 'src/stores/main.store'
 import { socketStore }                          from 'src/stores/socket.store';
 import { accountStore }                         from 'src/stores/account.store';
+import { processesStore }                       from 'src/stores/processes.store';
 import { storeToRefs }                          from 'pinia'
 import debug                                    from 'debug'
 import { Screen }                               from 'quasar';
@@ -64,6 +74,8 @@ const log                                       = debug('app:MainLayout')
 
 const useMainStore          = mainStore()
 const { receive }           = storeToRefs( useMainStore )
+
+const useProcessesStore     = processesStore()
 
 const useAccountStore       = accountStore()
 
@@ -78,7 +90,8 @@ onBeforeMount( async () => {
             const useSocketStore        = socketStore()
             await useSocketStore.init()
             useMainStore.setReceive()
-            useAccountStore.getData()
+            await useAccountStore.getData()
+
             loading.value = true
         }
     } catch (error) {
@@ -96,6 +109,9 @@ function clickMenu( action: string ) {
             break;
         case 'processes':
             router.push('/app/processes')
+            break;
+        case 'traffic':
+            router.push('/app/traffic')
             break;
         default:
             break;

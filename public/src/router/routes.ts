@@ -13,7 +13,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
         { path: '/app/processes', component: () => import('src/pages/main/processesPage.vue') },
-        { path: '/app/settings', component: () => import('src/pages/main/settingsPage.vue') }
+        { path: '/app/settings', component: () => import('src/pages/main/settingsPage.vue') },
+        { path: '/app/traffic', component: () => import('src/pages/main/trafficPage.vue') }
     ]
   },
 

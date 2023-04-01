@@ -1,5 +1,5 @@
 <template>
-    <cust-page v-if="!loading" :noGrid="true" :noMenu="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 90 : 0">
+    <cust-page v-if="!loading" :noGrid="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 90 : 0">
         <template #header>
             <div class="row">
                 <div class="col-6 text-subtitle2 text-primary">
@@ -8,13 +8,21 @@
                 </div>
             </div>
         </template>
+        <template #menu>
+            <cust-menu :struct="menu" :propClass="'bg-grey-9'" storeName="account" class="q-mt-sm" />
+        </template>
         <template #content>
             <cust-form stateName="account">
                 <template #content>
-                    
                     <div class="row">
                         <div class="col-12 text-h6 text-white q-mt-sm q-ml-sm">
                             Serverdata
+                        </div>
+                        <div class="col-12">
+                            <cust-toggle label="Show Server" v-model="form.serverStatus" />
+                        </div>
+                        <div class="col-12">
+                            <cust-toggle label="Show MongoDB" v-model="form.mongodbStatus" />
                         </div>
                         <div class="col-12">
                             <cust-toggle label="Show Nginx" v-model="form.nginxStatus" />
@@ -43,6 +51,14 @@ import { accountStore }     from 'src/stores/account.store'
 
 const useAccountStore       = accountStore()
 const { record: form }    = storeToRefs( useAccountStore )
+
+const menu = ref([
+    {
+        label: '',
+        icon: 'save',
+        action: 'save',
+    }
+])
 
 </script>
 

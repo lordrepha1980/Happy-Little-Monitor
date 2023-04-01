@@ -15,37 +15,41 @@
         <template #content>
             <cust-card class="q-mt-sm">
                 <template #content>
-                    <div class="row text-h6 text-white flex items-center">
-                        <div class="col-12 text-caption text-primary">
-                            Server
-                            <q-separator dark />
-                        </div>
-                        <div class="col-6 col-sm-4 ellipsis">
-                            <q-icon name="fa-brands fa-hive" size="20px" color="white" class="q-pr-sm"/>{{ serverParams.ip_address }}
-                        </div>
-                        <div class="col-6 col-sm-4 ellipsis">
-                            <q-icon name="fa-brands fa-node-js" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.node_version }} {{ serverParams.node_os }}
-                        </div>
-                        <div class="col-6 col-sm-3 ellipsis">
-                            <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.server_uptime }}
-                        </div>
-                        <div class="col-6 col-sm-1 flex justify-end">
-                            <q-btn color="primary" class="q-mt-sm" unelevated round icon="account_tree"  size="12px" text-color="dark"  @click="useProcessesStore.setShowServerStatusDialog" />
-                        </div>
-                        <div class="col-12 text-caption text-primary q-py-sm">
-                            MongoDB
-                            <q-separator dark />
-                        </div>
-                        <div class="col-6 col-sm-4 ellipsis">
-                            <q-icon name="fa-solid fa-database" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_connections?.current }} / {{ serverParams.mongoDB_connections?.available }}
-                        </div>
-                        <div class="col-6 col-sm-4 ellipsis">
-                            <q-icon name="fas fa-leaf" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_version }}
-                        </div>
-                        <div class="col-6 col-sm-4 ellipsis">
-                            <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_uptime }}
-                        </div>
-                        <template v-if="nginxRecord && !nginxRecord.error && nginxRecord.connections" >
+                    <div class="row text-h6 text-white flex items-center" v-if="accountRecord.nginxStatus || accountRecord.serverStatus || accountRecord.mongodbStatus">
+                        <template v-if="accountRecord.serverStatus">
+                            <div class="col-12 text-caption text-primary">
+                                Server
+                                <q-separator dark />
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fa-brands fa-hive" size="20px" color="white" class="q-pr-sm"/>{{ serverParams.ip_address }}
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fa-brands fa-node-js" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.node_version }} {{ serverParams.node_os }}
+                            </div>
+                            <div class="col-6 col-sm-3 ellipsis">
+                                <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.server_uptime }}
+                            </div>
+                            <div class="col-6 col-sm-1 flex justify-end">
+                                <q-btn color="primary" class="q-mt-sm" unelevated round icon="account_tree"  size="12px" text-color="dark"  @click="useProcessesStore.setShowServerStatusDialog" />
+                            </div>
+                        </template>
+                        <template v-if="accountRecord.mongodbStatus">
+                            <div class="col-12 text-caption text-primary q-py-sm">
+                                MongoDB
+                                <q-separator dark />
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fa-solid fa-database" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_connections?.current }} / {{ serverParams.mongoDB_connections?.available }}
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fas fa-leaf" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_version }}
+                            </div>
+                            <div class="col-6 col-sm-4 ellipsis">
+                                <q-icon name="fas fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_uptime }}
+                            </div>
+                        </template>
+                        <template v-if="nginxRecord && !nginxRecord.error && nginxRecord.connections && accountRecord.nginxStatus" >
                             <div class="col-12 text-caption text-primary q-py-sm">
                                 Nginx
                                 <q-separator dark />
@@ -182,13 +186,17 @@ import CustMenu             from 'src/components/menu.vue'
 import CustPage             from 'src/components/custom/page.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
 import { processesStore }   from 'src/stores/processes.store'
-import { nginxStatusStore }      from 'src/stores/nginxstatus.store'
+import { nginxStatusStore } from 'src/stores/nginxstatus.store'
 import ServerStatusDialog   from 'src/components/serverStatusDialog.vue'
-import SparkleChart            from 'src/components/sparkleChart.vue'
+import SparkleChart         from 'src/components/sparkleChart.vue'
+import { accountStore }     from 'src/stores/account.store'
 import moment               from 'moment';
 import { Platform }         from 'quasar'
 import ProcessLogDialog     from 'src/components/processLogDialog.vue'
 const useProcessesStore = processesStore()
+
+const useAccountStore = accountStore()
+const { record: accountRecord } = storeToRefs(useAccountStore)
 
 const useNginxStatusStore = nginxStatusStore()
 const { record: nginxRecord } = storeToRefs(useNginxStatusStore)
@@ -250,8 +258,8 @@ const menuItems = [
 ]
 
 onMounted( async () => {
-    useProcessesStore.init()
-    useNginxStatusStore.init()
+    await useProcessesStore.init()
+    await useNginxStatusStore.init()
 } )
 
 </script>

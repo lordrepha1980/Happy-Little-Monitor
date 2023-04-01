@@ -37,22 +37,22 @@ export const accountStore = defineStore('account', {
             const result = await dataService.dataApi( { endpoint: 'user', action: 'findOne', data: { query: { username  }, table: 'user' } })
 
             if ( result?.data ) {
+                if ( result.data.serverStatus === undefined )
+                    result.data.serverStatus = true
+
+                if ( result.data.mongodbStatus === undefined )
+                    result.data.mongodbStatus = true
+
                 if ( result.data.nginxStatus === undefined )
                     result.data.nginxStatus = true
-                    
+
                 this._data = result.data
                 this._record = extend(true, {}, result.data)
             }
 
         },
         async save() {
-            const validForm = await this._form.methods.validate()
-
-            if ( validForm )
-                await dataService.dataSave( { endpoint: 'user', data: { body: this._record, table: 'user' } })
-        },
-        setLogStore(store?: ILogStore | null) {     
-            this._logStore = store || null
+            await dataService.dataSave( { endpoint: 'user', data: { body: this._record} })
         }
     }
 })
