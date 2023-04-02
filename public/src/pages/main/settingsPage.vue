@@ -45,6 +45,15 @@
                         <div class="col-12">
                             <q-separator dark/>
                         </div>
+                        <div class="col-12 text-h6 text-white q-mt-lg q-pl-sm">
+                            Alarm
+                        </div>
+                        <div class="col-12">
+                            <q-separator dark/>
+                        </div>
+                        <div class="col-12 q-mt-md">
+                            <cust-input label="E-Mail" :disable="false" v-model="form.alarmMail"  />
+                        </div>
                     </div>
                 </template>
             </cust-form>
@@ -63,6 +72,7 @@ import CustMenu             from 'src/components/menu.vue'
 import CustPage             from 'src/components/custom/page.vue'
 import CustForm             from 'src/components/custom/form.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
+import CustInput            from 'src/components/custom/input.vue'
 import CustToggle           from 'src/components/custom/toggle.vue'
 import { Platform }         from 'quasar'
 import { accountStore }     from 'src/stores/account.store'
