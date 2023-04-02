@@ -16,7 +16,7 @@ You can observe MongoDB, Nginx, Node, PM2, Networktraffic
 8. pm2 start `mobapi.config.js`
 
 ## Configuration
-The configuration file from the [MobAPI](https://github.com/lordrepha1980/MobAPI) 
+The configuration file from the [MobAPI](https://github.com/lordrepha1980/MobAPI/blob/master/README.md#configuration) 
 
 ## .ENV
 
@@ -37,4 +37,7 @@ Insert your own db connection, server configuration and mail for alerts
     MAIL_PASSWORD = ""
 
 ##UI
+
+![screen1](public/screen1.jpeg)
+![screen2](public/screen2.jpeg)
 
