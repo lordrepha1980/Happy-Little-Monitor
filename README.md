@@ -21,21 +21,20 @@ The configuration file from the [MobAPI](https://github.com/lordrepha1980/MobAPI
 ## .ENV
 
 Insert your own db connection, server configuration and mail for alerts
-`
-DEV=false
-DB_USERNAME=
-DB_PASSWORD=
-DB_HOST="localhost"
-DB_PORT=1337
-SERVER_PORT=3000
-SERVER_HOST="localhost"
-CLIENT_PORT=9000
 
-TEST_MAIL = ""
-MAIL_HOST = ""
-MAIL_PORT = 587
-MAIL_PASSWORD = ""
-`
+    DEV=false
+    DB_USERNAME=
+    DB_PASSWORD=
+    DB_HOST="localhost"
+    DB_PORT=1337
+    SERVER_PORT=3000
+    SERVER_HOST="localhost"
+    CLIENT_PORT=9000
+
+    TEST_MAIL = ""
+    MAIL_HOST = ""
+    MAIL_PORT = 587
+    MAIL_PASSWORD = ""
 
 ##UI
 
