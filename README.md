@@ -40,4 +40,6 @@ Insert your own db connection, server configuration and mail for alerts
 
 ![screen1](public/public/screen1.jpeg)
 ![screen2](public/public/screen2.png)
+<img src="public/public/screen2.png" alt="Beispielbild" style="max-width: 200px; width: 100%;">
+
 
