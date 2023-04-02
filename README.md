@@ -1,5 +1,6 @@
 
 # Happy Little Monitor
+<img src="public/public/icons/apple-touch-icon.png" alt="Logo" style="max-width: 128px !important; width: 128px;">
 is a monitoring tool for monitoring node instances started with pm2.
 The code is based on the MobAPI on the server-side and on vue3 quasar.dev on the client-side.
 You can observe MongoDB, Nginx, Node, PM2, Networktraffic
@@ -38,8 +39,7 @@ Insert your own db connection, server configuration and mail for alerts
 
 ##UI
 
-![screen1](public/public/screen1.jpeg)
-![screen2](public/public/screen2.png)
-<img src="public/public/screen2.png" alt="Beispielbild" style="max-width: 200px !important; width: 200px;">
+<img src="public/public/screen1.png" alt="Screen1" style="max-width: 200px !important; width: 300px;">
+<img src="public/public/screen2.png" alt="Screen2" style="max-width: 200px !important; width: 300px;">
 
 
