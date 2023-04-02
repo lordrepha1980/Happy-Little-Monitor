@@ -38,6 +38,6 @@ Insert your own db connection, server configuration and mail for alerts
 
 ##UI
 
-![screen1](public/screen1.jpeg)
-![screen2](public/screen2.jpeg)
+![screen1](public/public/screen1.jpeg)
+![screen2](public/public/screen2.jpeg)
 
