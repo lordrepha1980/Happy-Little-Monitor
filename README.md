@@ -1,6 +1,6 @@
 
-# Happy Little Monitor
 <img src="public/public/icons/apple-touch-icon.png" alt="Logo" style="max-width: 128px !important; width: 128px;">
+# Happy Little Monitor
 is a monitoring tool for monitoring node instances started with pm2.
 The code is based on the MobAPI on the server-side and on vue3 quasar.dev on the client-side.
 You can observe MongoDB, Nginx, Node, PM2, Networktraffic
