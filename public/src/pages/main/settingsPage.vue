@@ -22,7 +22,7 @@
                             Show Server
                         </div>
                         <div class="col-6 flex justify-end">
-                            <cust-toggle label="" v-model="form.serverStatus" />
+                            <cust-toggle label="" @update:model-value="saveForm" v-model="form.serverStatus" />
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
@@ -31,7 +31,7 @@
                             Show MongoDB
                         </div>
                         <div class="col-6 flex justify-end">
-                            <cust-toggle label="" v-model="form.mongodbStatus" />
+                            <cust-toggle label="" @update:model-value="saveForm" v-model="form.mongodbStatus" />
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
@@ -40,7 +40,7 @@
                             Show Nginx
                         </div>
                         <div class="col-6 flex justify-end">
-                            <cust-toggle label="" v-model="form.nginxStatus" />
+                            <cust-toggle label="" @update:model-value="saveForm" v-model="form.nginxStatus" />
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
@@ -52,7 +52,7 @@
                             <q-separator dark/>
                         </div>
                         <div class="col-12 q-mt-md">
-                            <cust-input label="E-Mail" :disable="false" v-model="form.alarmMail"  />
+                            <cust-input label="E-Mail" @blur="saveForm" :disable="false" v-model="form.alarmMail"  />
                         </div>
                     </div>
                 </template>
@@ -88,9 +88,9 @@ const menu = ref([
     }
 ])
 
-watch( form.value, async (val) => {
+async function saveForm () {
     await useAccountStore.save()
-})
+}
 
 </script>
 
