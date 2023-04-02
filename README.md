@@ -39,8 +39,9 @@ Insert your own db connection, server configuration and mail for alerts
     MAIL_PASSWORD = ""
 
 ##UI
+   |
+| ------ | ------ |
+| <img src="public/public/screen1.jpeg" alt="Screen1" style="max-width: 200px !important; width: 300px;"> | <img src="public/public/screen2.png" alt="Screen2" style="max-width: 200px !important; width: 300px;"> |
 
-<img src="public/public/screen1.jpeg" alt="Screen1" style="max-width: 200px !important; width: 300px;">
-<img src="public/public/screen2.png" alt="Screen2" style="max-width: 200px !important; width: 300px;">
 
 
