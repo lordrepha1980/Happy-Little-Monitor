@@ -102,7 +102,6 @@ module.exports  = {
 
         //Network
         const Network = await mob.get('data/network')
-        const {data: oldRes} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
 
         intervallPM2 = setInterval( async () => {
             pm2.connect(async (err) => {
@@ -182,6 +181,8 @@ module.exports  = {
 
         //server status
         sys.observe(valueObject, 1000, async (data) => {
+
+            const {data: oldRes} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
             
             if ( oldRes && oldRes.rx_sec ) {
                 oldRes.rx_sec += data.networkStats[0].rx_sec || 0
