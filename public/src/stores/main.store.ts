@@ -48,7 +48,7 @@ export const mainStore = defineStore('main', {
             }, 1000)
         },
         async getCompany() {
-            const {data} = await dataService.customApi({ endpoint: 'main', action: 'getCompany' })
+            const data = await dataService.customApi({ endpoint: 'main', action: 'getCompany' })
             this._company = data
         },
         async relogin() {

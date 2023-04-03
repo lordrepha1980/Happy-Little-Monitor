@@ -26,10 +26,6 @@ import { mainStore }                        from 'src/stores/main.store'
 
 const useMainStore          = mainStore()
 
-onBeforeMount( async () => {
-    //await useMainStore.relogin()
-})
-
 </script>
 
 <style scoped lang="scss">

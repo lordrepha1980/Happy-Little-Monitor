@@ -65,9 +65,7 @@ class network extends Data {
             }
             
         }
-    
 
-    
         async findOne( request ) {
             try {
                 if ( request && !request.table )
