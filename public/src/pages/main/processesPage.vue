@@ -84,6 +84,7 @@
             <q-list class="rounded-borders bg-grey-9 text-white">
                 <template v-for="proc of processes" :key="proc.pm_id">
                     <q-expansion-item
+                        style="flex: auto;"
                         v-if="proc.show"
                         :default-opened="accountRecord[proc.pm_id]"
                         @click="setExpand(proc.pm_id)"

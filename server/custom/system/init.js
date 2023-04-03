@@ -182,30 +182,65 @@ module.exports  = {
         //server status
         sys.observe(valueObject, 1000, async (data) => {
 
-            const {data: oldRes} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
+            let {data: oldResMonth} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
             
-            if ( oldRes && oldRes.rx_sec ) {
-                oldRes.rx_sec += data.networkStats[0].rx_sec || 0
-                oldRes.rx_human = calcBytes(oldRes.rx_sec)
+            if ( oldResMonth && oldResMonth.rx_sec !== undefined ) {
+                oldResMonth.rx_sec += data.networkStats[0].rx_sec || 0
+                oldResMonth.rx_human = calcBytes(oldResMonth.rx_sec)
             }
 
-            if ( oldRes && oldRes.tx_sec ) {
-                oldRes.tx_sec += data.networkStats[0].tx_sec || 0
-                oldRes.tx_human = calcBytes(oldRes.tx_sec)
+            if ( oldResMonth && oldResMonth.tx_sec !== undefined ) {
+                oldResMonth.tx_sec += data.networkStats[0].tx_sec || 0
+                oldResMonth.tx_human = calcBytes(oldResMonth.tx_sec)
             }
 
-            const res = await Network.update( { io, auth: true, noCheck: true, 
-                query: { _id: moment().format('YYYY-MM')},
-                body: oldRes || {
+            if ( !oldResMonth ) 
+                oldResMonth = {
                     _id: moment().format('YYYY-MM'),
                     rx_sec: data.networkStats[0].rx_sec || 0,
                     tx_sec: data.networkStats[0].tx_sec || 0,
                     tx_human: calcBytes(data.networkStats[0].tx_sec),
                     rx_human: calcBytes(data.networkStats[0].rx_sec),
+                    month: moment().format('YYYY-MM'),
+                    days: []
                 } 
+
+            let oldResDay = oldResMonth.days.find(( dayItem ) => {
+                
+                return moment().format('YYYY-MM-DD') === dayItem._id
+            })
+
+
+
+            if ( !oldResDay ) {
+                oldResDay = {
+                    _id: moment().format('YYYY-MM-DD'),
+                    rx_sec: data.networkStats[0].rx_sec || 0,
+                    tx_sec: data.networkStats[0].tx_sec || 0,
+                    tx_human: calcBytes(data.networkStats[0].tx_sec),
+                    rx_human: calcBytes(data.networkStats[0].rx_sec)
+                }
+
+                oldResMonth.days.push(oldResDay)
+            }
+
+            
+            if ( oldResDay && oldResDay.rx_sec !== undefined ) {
+                oldResDay.rx_sec += data.networkStats[0].rx_sec || 0
+                oldResDay.rx_human = calcBytes(oldResDay.rx_sec)
+            }
+
+            if ( oldResDay && oldResDay.tx_sec !== undefined ) {
+                oldResDay.tx_sec += data.networkStats[0].tx_sec || 0
+                oldResDay.tx_human = calcBytes(oldResDay.tx_sec)
+            }
+
+            const resMonth = await Network.update( { io, auth: true, noCheck: true, 
+                query: { _id: moment().format('YYYY-MM')},
+                body: oldResMonth
             } )
 
-            io.emit('networkStatus', { data: res.data })
+            io.emit('networkStatus', { data: resMonth.data })
             io.emit('serverStatus', { data })
         })
 

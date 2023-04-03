@@ -3,6 +3,7 @@ import { dataService }  from 'src/services/data.service'
 import { extend, Loading, QSpinnerGrid}       from 'quasar'
 import { mainStore } from './main.store'
 import { socketStore }  from './socket.store'
+import moment from 'moment'
 
 import Global from 'src/helpers/Global.js'
 const global = Global({})
@@ -34,7 +35,7 @@ export const networkStatusStore = defineStore('networkStatus', {
             })
         },
         async getData () {
-            const result = await dataService.dataApi( { endpoint: 'network', action: 'find', data: { query: {}, sort: { _id: -1 } } })
+            const result = await dataService.dataApi( { endpoint: 'network', action: 'find', data: { query: {month: {$gte: moment().subtract(6, 'months').format('YYYY-MM')} }, sort: { _id: -1 } } })
 
             if ( result.data )
                 this._data = result.data
