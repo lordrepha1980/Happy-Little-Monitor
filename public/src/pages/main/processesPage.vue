@@ -221,7 +221,6 @@ const {
 } = storeToRefs(useProcessesStore)
 
 watch( processSearch, (val) => {
-    console.log('1111')
     useProcessesStore.setProcessSearch(val)
 })
 

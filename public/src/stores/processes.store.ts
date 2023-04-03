@@ -114,7 +114,6 @@ export const processesStore = defineStore('processes', {
         },
         setProcessSearch (val: string) {
             this._data.forEach( (proc: any) => {
-                console.log('1111')
                 if( proc.name.toLowerCase().includes(val.toLowerCase()) )
                     proc.show = true
                 else

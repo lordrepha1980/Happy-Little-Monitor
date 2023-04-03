@@ -11,11 +11,14 @@ You can observe MongoDB, Nginx, Node, PM2, Networktraffic
 1. git clone `https://github.com/lordrepha1980/Happy-Little-Monitor.git`
 2. npm i
 3. npm i pm2 -g (install pm2 global)
-4. create a .env file in the root Folder [example](https://bcrypt-generator.com/)
+4. create a .env file in the root Folder [example](https://github.com/lordrepha1980/Happy-Little-Monitor#env)
 5. Create a MongoDB Database with name `HLM`
-6. Create a `user` collection an inserted a record with `{username: yourmailadress, password: yourpassword}` the password must be bcrypt like [Bcrypt](https://bcrypt-generator.com/)
+6. Create a `user` collection and inserted a record with `{username: yourmailadress, password: yourpassword}` the password must be bcrypt like [Bcrypt](https://bcrypt-generator.com/)
 7. Rename the `example.mobapi.config.js` file to `mobapi.config.js`
 8. pm2 start `mobapi.config.js`
+9. To get Nginx metrics, enable it in the `etc/nginx.conf` file
+
+HLM is a quasar dev project. You can run `npx quasar build` in the public folder for a quasar build project.
 
 ## Configuration
 The configuration file from the [MobAPI](https://github.com/lordrepha1980/MobAPI/blob/master/README.md#configuration) 
@@ -42,7 +45,7 @@ Insert your own db connection, server configuration and mail for alerts
 
 |        |        |
 | ------ | ------ |
-| <img src="public/public/screen1.jpeg" alt="Screen1" style="max-width: 200px !important; width: 300px;"> | <img src="public/public/screen2.jpeg" alt="Screen2" style="max-width: 200px !important; width: 300px;"> |
+| <img src="public/public/screen1.jpg" alt="Screen1" style="max-width: 200px !important; width: 300px;"> | <img src="public/public/screen2.jpg" alt="Screen2" style="max-width: 200px !important; width: 300px;"> |
 
 
 
