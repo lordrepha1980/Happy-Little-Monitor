@@ -71,20 +71,6 @@ module.exports = configure(function (/* ctx */) {
       // analyze: true,
       env: {
         register: {
-            username: 'cduengel@gmx.de',
-            password: 'IwidF51980!',
-            passwordConfirm: 'IwidF51980!',
-            name: 'Company Name',
-            street: 'Company Street Name',
-            zip: '123455',
-            city: 'Berlin',
-            status: '2',
-            tel: '123456789',
-            firstname: 'Christoph',
-            lastname: 'Düngel',
-            zulassungsNummer: '123D123',
-            nutzungsbedingungen: true,
-            auftragsverarbeitung: true,
         }
       },
       // rawDefine: {}
