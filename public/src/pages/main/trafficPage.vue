@@ -18,7 +18,7 @@
                     <q-item-section>
                         <div class="row text-white text-body1" style="height: 24px;">
                             <div class="col-4 flex items-center col-sm-2 text-bold">
-                                {{moment(item._id).format('MMMM')}}
+                                {{moment(item._id).format('YYYY-MMMM')}}
                             </div>
                             <div class="col-4 flex col-sm-2 items-center q-pl-md">
                                 <q-icon name="east" color="green" class="q-mr-sm" /> {{item.rx_human}}

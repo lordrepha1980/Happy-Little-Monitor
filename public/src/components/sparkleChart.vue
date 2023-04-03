@@ -38,7 +38,7 @@ watch(datapoints, (val) => {
         res.value.shift()
         switch( props.type ) {
             case 'cpu':
-                res.value.push(val[props.name][props.type])
+                res.value.push(val[props.name][props.type] ? Math.round(val[props.name][props.type] / 10) : 0)
                 break;
             case 'memory':
                 res.value.push(useProcessesStore.calcMemory(val[props.name][props.type], true))
