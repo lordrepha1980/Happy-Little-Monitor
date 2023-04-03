@@ -13,9 +13,10 @@
             </div>
         </template>
         <template #content>
-            <cust-card class="q-mt-sm">
+            <cust-input :disable="false" :stackLabel="false" label="Search" icon="search" v-model="useProcessesStore._processSearch"/>
+            <cust-card class="q-mt-sm" v-if="accountRecord.nginxStatus || accountRecord.serverStatus || accountRecord.mongodbStatus">
                 <template #content>
-                    <div class="row text-h6 text-white flex items-center" v-if="accountRecord.nginxStatus || accountRecord.serverStatus || accountRecord.mongodbStatus">
+                    <div class="row text-h6 text-white flex items-center">
                         <template v-if="accountRecord.serverStatus">
                             <div class="col-12 text-caption text-primary">
                                 Server
@@ -83,6 +84,7 @@
             <q-list class="rounded-borders bg-grey-9 text-white">
                 <template v-for="proc of processes" :key="proc.pm_id">
                     <q-expansion-item
+                        v-if="proc.show"
                         :default-opened="accountRecord[proc.pm_id]"
                         @click="setExpand(proc.pm_id)"
                         icon="fas fa-server"
@@ -123,7 +125,7 @@
                                         </div>
                                     </div>
                                     <div class="col-4 col-sm-4 ellipsis items-center" v-if="proc.pm2_env.created_at">
-                                        <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm"/> {{proc.monit.cpu}}%
+                                        <q-icon name="fas fa-microchip" size="18px" class="q-pr-sm" /> <span :class="proc.monit.cpu !== undefined ? cpuColor(Math.round(proc.monit.cpu / 10)) : 0">{{proc.monit.cpu !== undefined ? Math.round(proc.monit.cpu / 10) : 0 }}%</span>
                                         <div class="row">
                                             <div class="col-12">
                                                 <sparkle-chart type="cpu" :name="proc.name"/>
@@ -184,6 +186,7 @@ import { storeToRefs }      from 'pinia';
 import { useRouter }        from 'vue-router';
 import CustButton           from 'src/components/custom/button.vue'
 import CustCard             from 'src/components/custom/card.vue'
+import CustInput            from 'src/components/custom/input.vue'
 import CustMenu             from 'src/components/menu.vue'
 import CustPage             from 'src/components/custom/page.vue'
 import CustDialog           from 'src/components/custom/dialog.vue'
@@ -213,11 +216,28 @@ const {
     loading,
     showServerStatusDialog,
     openLogProcess,
+    processSearch
 } = storeToRefs(useProcessesStore)
+
+watch( processSearch, (val) => {
+    console.log('1111')
+    useProcessesStore.setProcessSearch(val)
+})
 
 async function setExpand(item: string) {
     useAccountStore._record[item] = useAccountStore._record[item] ? false : true
     await useAccountStore.save()
+}
+
+function cpuColor ( val: number ) {
+    switch( true ) {
+        case val > 80:
+            return 'text-red-9'
+        case val > 50:
+            return 'text-primary'
+        default:
+            return ''
+    }
 }
 
 const menuItems = [

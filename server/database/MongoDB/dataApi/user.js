@@ -91,6 +91,10 @@ class user extends Data {
                 const result = await super.findOne( request )
 
                 
+    if (!request.actions?.login)
+        delete result.data?.password
+
+
                 if ( globalHooks.findOneAfter )
                     await globalHooks.findOneAfter( { 
                         io: request.io, 

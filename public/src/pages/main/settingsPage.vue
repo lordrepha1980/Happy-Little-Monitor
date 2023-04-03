@@ -22,7 +22,7 @@
                             Show Server
                         </div>
                         <div class="col-6 flex justify-end">
-                            <cust-toggle label="" @update:model-value="saveForm" v-model="form.serverStatus" />
+                            <cust-toggle label="" v-model="form.serverStatus" />
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
@@ -31,7 +31,7 @@
                             Show MongoDB
                         </div>
                         <div class="col-6 flex justify-end">
-                            <cust-toggle label="" @update:model-value="saveForm" v-model="form.mongodbStatus" />
+                            <cust-toggle label="" v-model="form.mongodbStatus" />
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
@@ -40,7 +40,7 @@
                             Show Nginx
                         </div>
                         <div class="col-6 flex justify-end">
-                            <cust-toggle label="" @update:model-value="saveForm" v-model="form.nginxStatus" />
+                            <cust-toggle label="" v-model="form.nginxStatus" />
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
@@ -91,6 +91,14 @@ const menu = ref([
 async function saveForm () {
     await useAccountStore.save()
 }
+
+watch([
+        () => form.value.serverStatus,
+        () => form.value.mongodbStatus,
+        () => form.value.nginxStatus
+    ], async (newVal) => {
+    await useAccountStore.save()
+})
 
 </script>
 

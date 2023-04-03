@@ -7,6 +7,7 @@
         :type="isPwd ? 'text' : type"
         dense
         dark
+        :icon="icon"
         filled
         :size="size"
         :autogrow="autogrow"
@@ -20,6 +21,12 @@
                 :name="isPwd ? 'visibility_off' : 'visibility'"
                 class="cursor-pointer"
                 @click="isPwd = !isPwd"
+            />
+        </template>
+        <template v-slot:prepend v-if="icon">
+            <q-icon
+                :name="icon"
+                class="cursor-pointer"
             />
         </template>
     </q-input>
@@ -67,6 +74,10 @@ const props = defineProps({
     size: {
         type: String,
         default: 'md'
+    },
+    icon: {
+        type: String,
+        default: undefined
     }
 })
 

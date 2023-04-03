@@ -34,7 +34,8 @@ export const processesStore = defineStore('processes', {
         _processesOffline: <number> 0,
         _loading: <boolean> false,
         _showServerStatusDialog: <boolean> false,
-        _datapoints: <any> {}
+        _datapoints: <any> {},
+        _processSearch: <string> ''
     }),
     getters: {
         data: (state) => state._data,
@@ -56,6 +57,7 @@ export const processesStore = defineStore('processes', {
         loading: (state) => state._loading,
         showServerStatusDialog: (state) => state._showServerStatusDialog,
         datapoints: (state) => state._datapoints,
+        processSearch: (state) => state._processSearch
     },
     actions: {
         async init () {
@@ -88,6 +90,8 @@ export const processesStore = defineStore('processes', {
                 });
                 this._data = data
                 this._serverParams = params
+                if (this._processSearch)
+                    this.setProcessSearch(this._processSearch)
 
                 Loading.hide()
                 this._loading = false
@@ -107,6 +111,15 @@ export const processesStore = defineStore('processes', {
                 return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
             else
                 return parseInt(n.toFixed(n < 10 && l > 0 ? 1 : 0))
+        },
+        setProcessSearch (val: string) {
+            this._data.forEach( (proc: any) => {
+                console.log('1111')
+                if( proc.name.toLowerCase().includes(val.toLowerCase()) )
+                    proc.show = true
+                else
+                    proc.show = false
+            } )
         },
         setRecord ({ id, name, errorPath, outPath }: { id: number, name: string, errorPath: string, outPath: string }) {
             this._recordId = id

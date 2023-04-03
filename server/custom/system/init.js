@@ -5,18 +5,60 @@ const debug         = require('debug')('app:server:custom:system:init')
 const mob           = new ClassRouter()
 const moment        = require('moment')
 const pm2           = require('pm2')
+const fs            = require('fs')
 const ip            = require('ip')
 const os            = require('os')
 const sys           = require('systeminformation')
 const http          = require('http')
-const { curly }      = require("node-libcurl");
+const { curly }     = require("node-libcurl");
 const uid           = require('uuid')
 
 module.exports  = {
     init: async (io) => {
         let intervallPM2 = null
         let count = 0
+        let pm2InstStatus = {}
 
+        const main = await mob.get('custom/main')
+        const User = await mob.get('data/user')
+        const { data: user} = await User.findOne({ auth: true, noCheck: true, query: {} })
+
+        function readFile (path) {
+            if (!path)
+                return null
+
+            return new Promise((resolve, reject) => {
+                let chunk = ''
+                const readStream = fs.createReadStream(path, {
+                    start: (fs.statSync(path).size - 2000 >= 0) ? ( fs.statSync(path).size - 2000 ) : 0
+                });
+    
+                readStream.on('data', data => {
+                    chunk += data.toString()
+                });
+    
+                readStream.on('end', ( data ) => {
+                    resolve(chunk)
+                });
+            })
+        }
+
+        async function sendMail ({name, status, out, error}) {
+            let text = 'Everithyng is fine!'
+            if ( status !== 'online' ) {
+                const outLog = await readFile(out) || ''
+                const errorLog = await readFile(error) || ''
+
+                text = `------------ERROR LOG------------\n${errorLog}\n\n------------OUT LOG------------\n${outLog}`
+            }
+
+            main.sendMail( { body: {
+                email: user.alarmMail,
+                subject: `HLM - ${name} - Process ${status.toUpperCase()}`,
+                text,
+            } } )
+        }
+                            
         function calcBytes (mem) { 
             const units = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
 
@@ -57,6 +99,11 @@ module.exports  = {
             return nginxStatus;
         }
 
+
+        //Network
+        const Network = await mob.get('data/network')
+        const {data: oldRes} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
+
         intervallPM2 = setInterval( async () => {
             pm2.connect(async (err) => {
                 if (err) {
@@ -75,6 +122,7 @@ module.exports  = {
 
                     for( const item of list) {
                         pm2Procs.push({
+                            show: true,
                             name: item.name,
                             pm_id: item.pm_id,
                             monit: item.monit,
@@ -87,10 +135,22 @@ module.exports  = {
                                 status: item.pm2_env.status,
                             }
                         })
+
+                        if (!pm2InstStatus[item.name])
+                            pm2InstStatus[item.name] = {}
+
+                        if ( pm2InstStatus[item.name].status !== item.pm2_env.status ) { 
+                            pm2InstStatus[item.name].status = item.pm2_env.status
+
+                            await sendMail({name: item.name, status: item.pm2_env.status, out: item.pm2_env.pm_out_log_path, error: item.pm2_env.pm_err_log_path})
+                        }
+
                         await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${item.name}_${count}_memory`, type: "memory", value: item.monit.memory, name: item.name  } } )
                         await ChartData.update( { table: 'chartdata', io, auth: true, noCheck: true, body: { _id: `${item.name}_${count}_cpu`, type: "cpu", value: item.monit.cpu, name: item.name  } } )
                     }
                     const { data: chartpoints } = await ChartData.find( { table: 'chartdata', auth: true, noCheck: true, query: {}, sort: { _id: 1 } } )
+
+                    pm2Procs = pm2Procs.sort((a, b) => { return a.name > b.name ? 1 : -1})
 
                     io.emit('process', { data: pm2Procs, params: {
                         nginxLog: {error: true},
@@ -122,10 +182,6 @@ module.exports  = {
 
         //server status
         sys.observe(valueObject, 1000, async (data) => {
-
-            //Network
-            const Network = await mob.get('data/network')
-            const {data: oldRes} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
             
             if ( oldRes && oldRes.rx_sec ) {
                 oldRes.rx_sec += data.networkStats[0].rx_sec || 0
