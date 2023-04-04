@@ -9,11 +9,11 @@ const moment        = require('moment');
 const ClassRouter   = require( _dirname + '/server/database/classRouter.js');
 const mob           = new ClassRouter();
 const globalHooks   = GlobalHooks();
-const defaultCollection = 'network';
+const defaultCollection = 'nodeStatusProc';
 
 
 
-class network extends Data { 
+class nodeStatusProc extends Data { 
 
     
         constructor() {
@@ -225,4 +225,4 @@ class network extends Data {
 
 }
 
-module.exports = network;
+module.exports = nodeStatusProc;

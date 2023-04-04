@@ -17,7 +17,6 @@ module.exports  = {
     init: async (io) => {
         let intervallPM2 = null
         let count = 0
-        let pm2InstStatus = {}
 
         const main = await mob.get('custom/main')
         const User = await mob.get('data/user')
@@ -135,11 +134,17 @@ module.exports  = {
                             }
                         })
 
-                        if (!pm2InstStatus[item.name])
-                            pm2InstStatus[item.name] = {}
+                        const Proc = await mob.get('data/nodeStatusProc')
+                        let { data: proc } = await Proc.findOne({ auth: true, noCheck: true, query: { _id: item.name } })
 
-                        if ( pm2InstStatus[item.name].status !== item.pm2_env.status ) { 
-                            pm2InstStatus[item.name].status = item.pm2_env.status
+                        if (!proc)
+                            proc = {
+                                _id: item.name,
+                            }
+
+                        if ( proc.status !== item.pm2_env.status ) { 
+                            proc.status = item.pm2_env.status
+                            await Proc.update( {  auth: true, noCheck: true, body: proc } )
 
                             await sendMail({name: item.name, status: item.pm2_env.status, out: item.pm2_env.pm_out_log_path, error: item.pm2_env.pm_err_log_path})
                         }

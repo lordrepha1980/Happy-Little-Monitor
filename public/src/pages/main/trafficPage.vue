@@ -1,5 +1,5 @@
 <template>
-    <cust-page v-if="!loading" :noGrid="true" :noMenu="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 90 : 0">
+    <cust-page class="traffic" v-if="!loading" :noGrid="true" :noMenu="true" :subScrollHeight="Platform.is.platform === 'iphone' ? 90 : 0">
         <template #header>
             <div class="row">
                 <div class="col-6 text-subtitle2 text-primary">
@@ -16,9 +16,9 @@
                 
                 <template v-slot:header>
                     <q-item-section>
-                        <div class="row text-white text-body1" style="height: 24px;">
-                            <div class="col-4 flex items-center col-sm-2 text-bold">
-                                {{moment(item._id).format('YYYY-MMMM')}}
+                        <div class="row text-white text-subtitles1">
+                            <div class="col-4 flex items-center col-sm-2 text-bold ellipsis">
+                                {{moment(item._id).format('YYYY-MMM')}}
                             </div>
                             <div class="col-4 flex col-sm-2 items-center q-pl-md">
                                 <q-icon name="east" color="green" class="q-mr-sm" /> {{item.rx_human}}
@@ -33,9 +33,9 @@
                     </q-item-section>
                 </template>
                 <q-card class="my-card bg-grey-9">
-                    <div class="row text-white text-body1 q-pl-lg" v-for="(day) in item.days" :key="day._id">
+                    <div class="row text-white text-subtitles1 q-pl-md" v-for="(day) in item.days" :key="day._id">
                         <div class="col-4 flex items-center col-sm-2 text-bold">
-                            <span>{{day._id}}</span>
+                            <span>{{moment(day._id).format('DD dd')}}</span>
                         </div>
                         <div class="col-4 flex col-sm-2 items-center">
                             <q-icon name="east" color="green" class="q-mr-sm" /> {{day.rx_human}}
@@ -92,6 +92,10 @@ onBeforeMount( async () => {
     body.desktop .q-focus-helper {
         display: none !important;
         background: green;
+    }
+
+    .traffic .q-item {
+        padding: 2px 0px !important;
     }
 
 </style>

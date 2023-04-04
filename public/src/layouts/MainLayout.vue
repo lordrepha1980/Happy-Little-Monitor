@@ -2,14 +2,14 @@
     <q-layout view="hHh lpR fFf" class="bg-grey-9">
         <q-header  class="bg-dark elevated border">
             <q-toolbar>
-                <q-toolbar-title class="text-primary flex items-center">
+                <q-toolbar-title class="text-primary flex items-center ellipsis">
                     <q-avatar>
                         <img src="/logo.png" />
                     </q-avatar>
                     <span v-if="Screen.gt.xs">Happy Little Monitor</span>
                     <span v-else >HLM</span>
                     <q-badge color="grey-8" text-color="primary" :label="pack.version" class="q-ml-sm q-mb-sm" />
-                    <toolbar-header />
+                    
                 </q-toolbar-title>
                 <q-icon color="green" v-if="useMainStore._receive && useMainStore._connected" name="blur_on" size="30px"/>
                 <q-icon color="green" v-else name="" size="30px"/>
