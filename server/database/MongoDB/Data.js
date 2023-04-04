@@ -63,10 +63,14 @@ module.exports = class Data {
     }
 
     async initDb ( ) {
-        const Connection        = require( _dirname + '/server/database/MongoDB/Connection.js');
-        let connection          = new Connection();
-        const { db, client }    = await connection.init();     
-        return { db, client };
+        try {
+            const Connection        = require( _dirname + '/server/database/MongoDB/Connection.js');
+            let connection          = new Connection();
+            const { db, client }    = await connection.init();     
+            return { db, client };
+        } catch (error) {
+            throw error;
+        }
     }
 
     async closeDb ( client ) {
@@ -148,13 +152,16 @@ module.exports = class Data {
                 throw 'Query Empty'
 
             const { db, client }     = await this.initDb();
+            const item = await db.collection(request.table).findOne(
+                request.query
+            )
             const res = await db.collection(request.table).deleteOne(
                 request.query
             );
             this.closeDb( client );
 
             if ( res.acknowledged )
-                return { deletedCount: res.deletedCount, query: request.query }
+                return { data: true, deletedCount: res.deletedCount, query: request.query, deletedId: item._id }
 
             throw res
         } 

@@ -43,7 +43,7 @@ module.exports  = {
         }
 
         async function sendMail ({name, status, out, error}) {
-            let text = 'Everithyng is fine!'
+            let text = 'Everithing is fine!'
             if ( status !== 'online' ) {
                 const outLog = await readFile(out) || ''
                 const errorLog = await readFile(error) || ''
