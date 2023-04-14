@@ -31,6 +31,8 @@ module.exports  = {
         const getCerts = new CronJob(
             '00 00 00 * * *',
             async function() {
+                if ( process.env.DEV )
+                    return
                 
                 let certs = {}
                 const { stdout } = await execPromise('certbot certificates')
@@ -53,10 +55,11 @@ module.exports  = {
                 Certs.update({ auth: true, noCheck: true, query: {_id: '1'}, body: {_id: '1', certs} })
             },
             null,
+            true,
+            null,
+            null,
             true
         );
-
-        getCerts.start()
 
         function readFile (path) {
             if (!path)
