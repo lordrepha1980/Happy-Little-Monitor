@@ -139,10 +139,10 @@
                                 </div>
                                 <div class="row text-body1 q-pl-xs q-pb-sm">
                                     <div class="col-12 col-sm-6" :class="sshColor(proc.sshExpiry.date)" v-if="proc.pm2_env.created_at">
-                                        SSH expires on: {{moment(proc.sshExpiry.date).format('YYYY-MM-DD HH:mm')}}
+                                        SSL expires on: {{moment(proc.sshExpiry.date).format('YYYY-MM-DD HH:mm')}}
                                     </div>
                                     <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
-                                        SSH expires in: {{proc.sshExpiry.valid}}
+                                        SSL expires in: {{proc.sshExpiry.valid}}
                                     </div>
                                     <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
                                         Created at: {{`${moment(proc.pm2_env.created_at).format('YYYY-MM-DD HH:mm')}` }}
