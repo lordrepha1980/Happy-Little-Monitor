@@ -165,16 +165,16 @@ module.exports  = {
 
                     for( const item of list) {
                         let { data: certs }     = await Certs.findOne({ auth: true, noCheck: true, query: { _id: '1' } })
-                        let sshExpiry = { 
+                        let sslExpiry = { 
                             date: 'N/A',
                             valid: 'N/A'
                         }
 
                         if ( certs?.certs )
-                            sshExpiry = certs.certs[item.name]
+                            sslExpiry = certs.certs[item.name]
 
                         pm2Procs.push({
-                            sshExpiry,
+                            sslExpiry,
                             show: true,
                             name: item.name,
                             pm_id: item.pm_id,

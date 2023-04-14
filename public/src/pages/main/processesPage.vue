@@ -138,11 +138,11 @@
                                     </div>
                                 </div>
                                 <div class="row text-body1 q-pl-xs q-pb-sm">
-                                    <div class="col-12 col-sm-6" :class="sshColor(proc.sshExpiry.date)" v-if="proc.pm2_env.created_at">
-                                        SSL expires on: {{moment(proc.sshExpiry.date).format('YYYY-MM-DD HH:mm')}}
+                                    <div class="col-12 col-sm-6" :class="sslColor(proc.sslExpiry.date)" v-if="proc.pm2_env.created_at">
+                                        SSL expires on: {{moment(proc.sslExpiry.date).format('YYYY-MM-DD HH:mm')}}
                                     </div>
                                     <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
-                                        SSL expires in: {{proc.sshExpiry.valid}}
+                                        SSL expires in: {{proc.sslExpiry.valid}}
                                     </div>
                                     <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
                                         Created at: {{`${moment(proc.pm2_env.created_at).format('YYYY-MM-DD HH:mm')}` }}
@@ -246,7 +246,7 @@ function cpuColor ( val: number ) {
     }
 }
 
-function sshColor ( date: string ) {
+function sslColor ( date: string ) {
     switch( true ) {
         case moment().isAfter(moment(date).subtract(10, 'days')):
             return 'text-red-9'
