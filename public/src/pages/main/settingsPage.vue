@@ -54,6 +54,18 @@
                         <div class="col-12 q-mt-md">
                             <cust-input label="E-Mail" @blur="saveForm" :disable="false" v-model="form.alarmMail"  />
                         </div>
+                        <div class="col-12 text-h6 text-white q-mt-lg q-pl-sm">
+                            Nginx
+                        </div>
+                        <div class="col-12">
+                            <q-separator dark/>
+                        </div>
+                        <div class="col-12 q-mt-md">
+                            <cust-input label="Path" @blur="saveForm" :disable="false" v-model="form.nginxPath"  />
+                        </div>
+                        <div class="col-12 q-mt-md">
+                            <cust-input label="Logfiles" @blur="saveForm" :autogrow="true" :disable="false" v-model="form.nginxLogfiles"  />
+                        </div>
                     </div>
                 </template>
             </cust-form>
