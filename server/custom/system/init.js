@@ -56,6 +56,8 @@ module.exports  = {
             true
         );
 
+        getCerts.start()
+
         function readFile (path) {
             if (!path)
                 return null
