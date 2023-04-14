@@ -43,10 +43,10 @@ module.exports  = {
                     const expiryMatch = cert.match(/Expiry Date:\s([^\n]+)/);
                     if (nameMatch && expiryMatch) {
                         const name = nameMatch[1];
-                        const expiry = expiryMatch[1].split(' ')[0];
-                        const valid = expiryMatch[1].split(' ')[1];
+                        const date = `${expiryMatch[1].split(' ')[0]} ${expiryMatch[1].split(' ')[1]}`;
+                        const valid = `${expiryMatch[1].split(' ')[3]} days`;
                         certs[name] = {
-                            expiry,
+                            date,
                             valid
                         } 
                     }
@@ -159,13 +159,13 @@ module.exports  = {
 
                     for( const item of list) {
                         let { data: certs }     = await Certs.findOne({ auth: true, noCheck: true, query: { _id: '1' } })
-
                         let sshExpiry = { 
-                            date: moment().utc(),
+                            date: 'N/A',
                             valid: 'N/A'
                         }
-                        if ( certs )
-                            sshExpiry = certs[item.name]
+
+                        if ( certs?.certs )
+                            sshExpiry = certs.certs[item.name]
 
                         pm2Procs.push({
                             sshExpiry,
