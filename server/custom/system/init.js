@@ -31,8 +31,6 @@ module.exports  = {
         const getCerts = new CronJob(
             '00 00 00 * * *',
             async function() {
-                if ( process.env.DEV )
-                    return
                 
                 let certs = {}
                 const { stdout } = await execPromise('certbot certificates')
@@ -50,6 +48,14 @@ module.exports  = {
                             valid
                         } 
                     }
+
+                    if (moment().isAfter(moment(expiryMatch[1].split(' ')[3]).subtract(20, days))) {
+                        main.sendMail( { body: {
+                            email: user.alarmMail,
+                            subject: `HLM - ${nameMatch[1]} - SSL Certificate expires in ${valid}`,
+                            text: `SSL Certificate expires in ${valid} \n\n ${cert}`
+                        } } )
+                    }
                 });
 
                 Certs.update({ auth: true, noCheck: true, query: {_id: '1'}, body: {_id: '1', certs} })
@@ -58,7 +64,7 @@ module.exports  = {
             true,
             null,
             null,
-            true
+            !process.env.DEV
         );
 
         function readFile (path) {
