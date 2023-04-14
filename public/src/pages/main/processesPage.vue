@@ -41,7 +41,7 @@
                                 <q-separator dark />
                             </div>
                             <div class="col-6 col-sm-4 ellipsis">
-                                <q-icon name="fa-solid fa-database" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_connections?.current }} / {{ serverParams.mongoDB_connections?.available }}
+                                <q-icon name="fa-solid fa-database" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_connections?.current }} / {{ serverParams.mongoDB_connections?.available + serverParams.mongoDB_connections?.current }} ({{ serverParams.mongoDB_connections?.available }})
                             </div>
                             <div class="col-6 col-sm-4 ellipsis">
                                 <q-icon name="fas fa-leaf" size="20px" color="white" class="q-pr-sm"/> {{ serverParams.mongoDB_version }}
