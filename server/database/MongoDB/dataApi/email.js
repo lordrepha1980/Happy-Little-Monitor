@@ -11,12 +11,12 @@ const dayjsIsBetween     = require('dayjs/plugin/isBetween')
 const ClassRouter   = require( _dirname + '/server/database/classRouter.js');
 const mob           = new ClassRouter();
 const globalHooks   = GlobalHooks();
-const defaultCollection = 'nodeStatusProc';
+const defaultCollection = 'email';
 dayjs.extend(dayjsIsBetween)
 
 
 
-class nodeStatusProc extends Data { 
+class email extends Data { 
 
     
         constructor() {
@@ -34,6 +34,24 @@ class nodeStatusProc extends Data {
                     request.table = defaultCollection
 
                 
+    if ( request.body.new ) {
+        request.actions = {
+            sendMail: true
+        }
+        
+        delete request.body.new
+
+        const Email = mob.get('data/email')
+        const {data: result} = await Email.findOne( { auth: request.auth, noCheck: true, query: { email: request.body.email, rootId: request.user.rootId }, ctx: request.ctx } )
+
+        if ( result ) {
+            throw 'Diese E-Mail Adresse ist bereits registriert'
+        }
+    }
+
+    if ( request.actions?.sendMail )
+        request.body.lastMail = dayjs().format('YYYY-MM-DD HH:mm:ss')
+
                 if ( globalHooks.updateBefore )
                     await globalHooks.updateBefore( { 
                         io: request.io, 
@@ -49,6 +67,11 @@ class nodeStatusProc extends Data {
 
                 const result = await super.update( request )
                 
+if ( request.actions?.sendMail ) {
+    const Main = mob.get('custom/main')
+    Main.sendConfirmMail( { to: result.data?.email, confirmId: result.data?._id, ctx: request.ctx, body: request.body, user: request.user } )
+}
+
                 if ( globalHooks.updateAfter )
                     await globalHooks.updateAfter( { 
                         io: request.io, 
@@ -256,4 +279,4 @@ class nodeStatusProc extends Data {
 
 }
 
-module.exports = nodeStatusProc;
+module.exports = email;

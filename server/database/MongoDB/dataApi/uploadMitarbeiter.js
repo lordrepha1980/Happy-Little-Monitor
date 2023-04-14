@@ -11,12 +11,58 @@ const dayjsIsBetween     = require('dayjs/plugin/isBetween')
 const ClassRouter   = require( _dirname + '/server/database/classRouter.js');
 const mob           = new ClassRouter();
 const globalHooks   = GlobalHooks();
-const defaultCollection = 'nodeStatusProc';
+const defaultCollection = 'uploadMitarbeiter';
 dayjs.extend(dayjsIsBetween)
 
 
 
-class nodeStatusProc extends Data { 
+function sortData ( data ) {
+    const sortData = data.sort(({name: a}, {name: b}) => {
+        return a.localeCompare(b)
+    })
+
+    return sortData
+}
+
+async function getMitarbeiterName( result, request ) {
+    const Mitarbeiter = await mob.get('data/mitarbeiter')
+
+    if ( !result.data || !result.data.length  ) {
+        const {data: mitarbeiter} = await Mitarbeiter.findOne( { auth: request.auth, noCheck: true, query: { _id: result.data.mitarbeiterId }, ctx: request.ctx } )
+        
+        if (!result.data)
+            result.data = {}
+
+        if ( mitarbeiter ) {
+            result.data.name       = mitarbeiter.name
+            result.data.surname    = mitarbeiter.surname
+        }
+
+        return
+    }
+
+    if ( result.data ) {
+        for( let item of result.data ) {
+            const {data: mitarbeiter} = await Mitarbeiter.findOne( { ctx: request.ctx, auth: request.auth, noCheck: true, query: { _id: item.mitarbeiterId } } )
+
+            if ( mitarbeiter ) {
+                item.name       = mitarbeiter.name
+                item.surname    = mitarbeiter.surname
+            }
+
+            if ( item.reminderDays && item.reminderDate ) {
+                const a         = dayjs(item.reminderDate)
+                const b         = dayjs()
+                item.days       = a.diff(b, 'days')
+            }
+        }
+
+        result.data = sortData(result.data)
+    }
+}
+
+
+class uploadMitarbeiter extends Data { 
 
     
         constructor() {
@@ -49,6 +95,24 @@ class nodeStatusProc extends Data {
 
                 const result = await super.update( request )
                 
+//socket emit client
+if ( request.user?.rootId ){
+    request.io.to(`room:${request.user.rootId}`).emit('update:upload', result.data)
+    await getMitarbeiterName(result, request)
+    
+    const { db, client } = await mob.db()
+    const res = await db.collection('uploadMitarbeiter.files').findOne({'metadata.uploadId': result.data._id})
+    client.close()
+    result.data.file = null
+    if ( res ) {
+        result.data.file = res.metadata
+        result.data.file.fileId = res._id
+    }
+
+    request.io.to(`room:${request.user.rootId}`).emit('update:uebersicht', result.data)
+    request.io.to(`room:${request.user.rootId}`).emit('sideNavCount')
+}
+
                 if ( globalHooks.updateAfter )
                     await globalHooks.updateAfter( { 
                         io: request.io, 
@@ -97,6 +161,17 @@ class nodeStatusProc extends Data {
                 const result = await super.findOne( request )
 
                 
+if ( request.actions === 'fileExists' ) {
+    const { db, client } = await mob.db()
+    const res = await db.collection('uploadMitarbeiter.files').findOne({'metadata.uploadId': request.query._id})
+    result.data.file = null
+    if ( res ) {
+        result.data.file = res.metadata
+        result.data.file.fileId = res._id
+    }
+    client.close()
+}
+
                 if ( globalHooks.findOneAfter )
                     await globalHooks.findOneAfter( { 
                         io: request.io, 
@@ -142,6 +217,27 @@ class nodeStatusProc extends Data {
                 const result = await super.find( request )
 
                 
+if ( request.actions === 'username' ) {
+    await getMitarbeiterName(result, request)
+}
+
+if ( request.actions === 'fileExists' ) {
+    const { db, client } = await mob.db()
+
+    if ( result.data )
+        for( let item of result.data ) {
+            const res = await db.collection('uploadMitarbeiter.files').findOne({'metadata.uploadId': item._id})
+
+            if ( res ) {
+                item.file = res.metadata
+                item.file.fileId = res._id
+            }
+        }
+    client.close()
+
+    
+}
+
                 if ( globalHooks.findAfter )
                     await globalHooks.findAfter( { 
                         io: request.io, 
@@ -187,6 +283,13 @@ class nodeStatusProc extends Data {
                 const result = await super.delete( request )
 
                 
+//socket emit client
+if ( request.user.rootId ){
+    request.io.to(`room:${request.user.rootId}`).emit('delete:upload', request.query)
+    request.io.to(`room:${request.user.rootId}`).emit('delete:uebersicht', request.query)
+    request.io.to(`room:${request.user.rootId}`).emit('sideNavCount')
+}
+
                 if ( globalHooks.deleteAfter )
                     await globalHooks.deleteAfter( { 
                         io: request.io, 
@@ -256,4 +359,4 @@ class nodeStatusProc extends Data {
 
 }
 
-module.exports = nodeStatusProc;
+module.exports = uploadMitarbeiter;

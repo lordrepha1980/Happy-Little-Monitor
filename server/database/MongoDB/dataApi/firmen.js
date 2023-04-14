@@ -11,12 +11,12 @@ const dayjsIsBetween     = require('dayjs/plugin/isBetween')
 const ClassRouter   = require( _dirname + '/server/database/classRouter.js');
 const mob           = new ClassRouter();
 const globalHooks   = GlobalHooks();
-const defaultCollection = 'nodeStatusProc';
+const defaultCollection = 'firmen';
 dayjs.extend(dayjsIsBetween)
 
 
 
-class nodeStatusProc extends Data { 
+class firmen extends Data { 
 
     
         constructor() {
@@ -126,6 +126,9 @@ class nodeStatusProc extends Data {
 
             try {
                 
+debug(request.user.rootId, request.query)
+    request.query.rootId = request.user.rootId
+
                 if ( globalHooks.findBefore )
                     await globalHooks.findBefore( { 
                         io: request.io, 
@@ -171,6 +174,14 @@ class nodeStatusProc extends Data {
                     request.table = defaultCollection
 
                 
+const Mitarbeiter = mob.get('data/mitarbeiter')
+
+const { data: mitarbeiter } = await Mitarbeiter.findOne( { ctx: request.ctx, auth: request.auth, noCheck: true, query:{ firma: request.query._id } } )
+
+if ( mitarbeiter )
+    return { data: { error: 'Löschen nicht möglich, der Firma sind noch Mitarbeiter zugeteilt' } }
+
+
                 if ( globalHooks.deleteBefore )
                     await globalHooks.deleteBefore( { 
                         io: request.io, 
@@ -256,4 +267,4 @@ class nodeStatusProc extends Data {
 
 }
 
-module.exports = nodeStatusProc;
+module.exports = firmen;

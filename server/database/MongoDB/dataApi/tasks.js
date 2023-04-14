@@ -11,12 +11,12 @@ const dayjsIsBetween     = require('dayjs/plugin/isBetween')
 const ClassRouter   = require( _dirname + '/server/database/classRouter.js');
 const mob           = new ClassRouter();
 const globalHooks   = GlobalHooks();
-const defaultCollection = 'nodeStatusProc';
+const defaultCollection = 'tasks';
 dayjs.extend(dayjsIsBetween)
 
 
 
-class nodeStatusProc extends Data { 
+class tasks extends Data { 
 
     
         constructor() {
@@ -256,4 +256,4 @@ class nodeStatusProc extends Data {
 
 }
 
-module.exports = nodeStatusProc;
+module.exports = tasks;

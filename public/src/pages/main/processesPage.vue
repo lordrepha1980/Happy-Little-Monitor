@@ -138,10 +138,16 @@
                                     </div>
                                 </div>
                                 <div class="row text-body1 q-pl-xs q-pb-sm">
-                                    <div class="col-12 col-sm-4" v-if="proc.pm2_env.created_at">
+                                    <div class="col-12 col-sm-6" :class="sshColor(proc.sshExpiry.date)" v-if="proc.pm2_env.created_at">
+                                        SSH expired: {{moment(proc.sshExpiry.date).format('YYYY-MM-DD HH:mm')}}
+                                    </div>
+                                    <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
+                                        SSH valid: {{proc.sshExpiry.valid}}
+                                    </div>
+                                    <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
                                         Created at: {{`${moment(proc.pm2_env.created_at).format('YYYY-MM-DD HH:mm')}` }}
                                     </div>
-                                    <div class="col-12 col-sm-4" v-if="proc.pm2_env.created_at">
+                                    <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
                                         Uptime: {{`${moment(proc.pm2_env.created_at).fromNow(proc.pm2_env.pm_uptime)}` }}
                                     </div>
                                 </div>
@@ -234,6 +240,17 @@ function cpuColor ( val: number ) {
         case val > 80:
             return 'text-red-9'
         case val > 50:
+            return 'text-primary'
+        default:
+            return ''
+    }
+}
+
+function sshColor ( date: string ) {
+    switch( true ) {
+        case moment().isAfter(moment(date).subtract(10, 'days')):
+            return 'text-red-9'
+        case moment().isAfter(moment(date).subtract(20, 'days')):
             return 'text-primary'
         default:
             return ''

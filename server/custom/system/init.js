@@ -12,6 +12,10 @@ const sys           = require('systeminformation')
 const http          = require('http')
 const { curly }     = require("node-libcurl");
 const uid           = require('uuid')
+const util          = require('util');
+const { exec }      = require('child_process');
+const execPromise   = util.promisify(exec);
+
 
 module.exports  = {
     init: async (io) => {
@@ -20,7 +24,37 @@ module.exports  = {
 
         const main = await mob.get('custom/main')
         const User = await mob.get('data/user')
+        const Certs = await mob.get('data/certs')
         const { data: user} = await User.findOne({ auth: true, noCheck: true, query: {} })
+        
+
+        const getCerts = new CronJob(
+            '00 00 00 * * *',
+            async function() {
+                
+                let certs = {}
+                const { stdout } = await execPromise('certbot certificates')
+                const certificates = stdout.split(/(?=Certificate Name:)/g);
+                    
+                certificates.forEach((cert) => {
+                    const nameMatch = cert.match(/Certificate Name:\s([^\n]+)/);
+                    const expiryMatch = cert.match(/Expiry Date:\s([^\n]+)/);
+                    if (nameMatch && expiryMatch) {
+                        const name = nameMatch[1];
+                        const expiry = expiryMatch[1].split(' ')[0];
+                        const valid = expiryMatch[1].split(' ')[1];
+                        certs[name] = {
+                            expiry,
+                            valid
+                        } 
+                    }
+                });
+
+                Certs.update({ auth: true, noCheck: true, query: {_id: '1'}, body: {_id: '1', certs} })
+            },
+            null,
+            true
+        );
 
         function readFile (path) {
             if (!path)
@@ -119,7 +153,17 @@ module.exports  = {
                     pm2Procs = []
 
                     for( const item of list) {
+                        let { data: certs }     = await Certs.findOne({ auth: true, noCheck: true, query: { _id: '1' } })
+
+                        let sshExpiry = { 
+                            date: moment().utc(),
+                            valid: 'N/A'
+                        }
+                        if ( certs )
+                            sshExpiry = certs[item.name]
+
                         pm2Procs.push({
+                            sshExpiry,
                             show: true,
                             name: item.name,
                             pm_id: item.pm_id,
@@ -135,7 +179,7 @@ module.exports  = {
                         })
 
                         const Proc = await mob.get('data/nodeStatusProc')
-                        let { data: proc } = await Proc.findOne({ auth: true, noCheck: true, query: { _id: item.name } })
+                        let { data: proc }      = await Proc.findOne({ auth: true, noCheck: true, query: { _id: item.name } })
 
                         if (!proc)
                             proc = {
@@ -272,6 +316,7 @@ module.exports  = {
         } catch (error) {
             clearInterval(intervallNginx)
         }
+
     }
 }
 

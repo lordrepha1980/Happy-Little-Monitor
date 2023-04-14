@@ -11,12 +11,12 @@ const dayjsIsBetween     = require('dayjs/plugin/isBetween')
 const ClassRouter   = require( _dirname + '/server/database/classRouter.js');
 const mob           = new ClassRouter();
 const globalHooks   = GlobalHooks();
-const defaultCollection = 'nodeStatusProc';
+const defaultCollection = 'mitarbeiter';
 dayjs.extend(dayjsIsBetween)
 
 
 
-class nodeStatusProc extends Data { 
+class mitarbeiter extends Data { 
 
     
         constructor() {
@@ -49,6 +49,8 @@ class nodeStatusProc extends Data {
 
                 const result = await super.update( request )
                 
+
+
                 if ( globalHooks.updateAfter )
                     await globalHooks.updateAfter( { 
                         io: request.io, 
@@ -187,6 +189,8 @@ class nodeStatusProc extends Data {
                 const result = await super.delete( request )
 
                 
+
+
                 if ( globalHooks.deleteAfter )
                     await globalHooks.deleteAfter( { 
                         io: request.io, 
@@ -256,4 +260,4 @@ class nodeStatusProc extends Data {
 
 }
 
-module.exports = nodeStatusProc;
+module.exports = mitarbeiter;

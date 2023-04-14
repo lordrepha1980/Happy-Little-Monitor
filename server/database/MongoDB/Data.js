@@ -171,6 +171,50 @@ module.exports = class Data {
         }
     }
 
+    async deleteMany ( request ) {
+        try{
+            Sentry.addBreadcrumb({message: JSON.stringify({ query: request.query }), category: 'deleteMany'})
+
+            config.debug.extend && debug('deleteMany params: ', request );
+
+            _delete.parse(request)
+
+            if ( !request.auth )
+                throw 'Not Authorized'
+
+            if ( config.module.useRights && !request.noCheck ) {
+                const { error } = await rights.check(request, 'delete')
+                if ( error )
+                    throw error
+            }
+
+            if ( Object.keys(request.query).length === 0 )
+                throw 'Query Empty'
+
+            const { db, client }     = await this.initDb()
+            const items = await db.collection(request.table).find(
+                request.query
+            )
+
+            if (items && items.length > 0)
+                items = items.map( item => item._id )
+
+            const res = await db.collection(request.table).deleteMany(
+                request.query
+            );
+            this.closeDb( client );
+
+            if ( res.acknowledged )
+                return { data: true, deletedCount: res.deletedCount, query: request.query, deletedIds: items || [] }
+
+            throw res
+        } 
+        catch (error) {
+            Sentry.captureException(error);
+            return { error };
+        }
+    }
+
     async findOne ( request ) {
         try {
             Sentry.addBreadcrumb({message: JSON.stringify({ query: request.query }), category: 'findOne'})
@@ -242,36 +286,6 @@ module.exports = class Data {
             return { data: result, total: count }
         } 
         catch (error) {
-            Sentry.captureException(error);
-            return { error };
-        }
-    }
-
-    async count ( request ) {
-        try {
-            Sentry.addBreadcrumb({message: JSON.stringify({ query: request.query }), category: 'count'})
-
-            config.debug.extend && debug('count params: ', request );
-
-            count.parse(request);
-
-            if ( !request.auth )
-                throw 'Not Authorized'
-
-            if ( config.module.useRights && !request.noCheck ) {
-                const { error } = await rights.check(request, 'count')
-                if ( error )
-                    throw error
-            }
-
-            const { db, client }     = await this.initDb();
-            const count = await db.collection(request.table).countDocuments(
-                request.query
-            );   
-            this.closeDb(client);
-
-            return { data: result }
-        } catch (error) {
             Sentry.captureException(error);
             return { error };
         }

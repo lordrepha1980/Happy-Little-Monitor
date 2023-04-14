@@ -4,5 +4,6 @@
    "company": "company",
    "chartdata": "chartdata",
    "network": "network",
-   "nodeStatusProc": "nodeStatusProc"
+   "nodeStatusProc": "nodeStatusProc",
+   "certs": "certs"
 }

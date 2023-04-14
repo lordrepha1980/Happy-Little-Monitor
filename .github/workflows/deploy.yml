@@ -55,21 +55,13 @@ jobs:
         local: "server/custom"
         verbose: true
         remote: "/var/www/hlm.lordrepha.de/server/custom"
-    - name: copy tables.json via ssh password
+    - name: copy serverData
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOSTDEV }}
         key: ${{ secrets.SSH }}
         username: ${{ secrets.USERDEV }}
-        source: "server/database/tables.json"
-        target: "/var/www/hlm.lordrepha.de/server/database"
-    - name: copy packages files via ssh password
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.HOSTDEV }}
-        key: ${{ secrets.SSH }}
-        username: ${{ secrets.USERDEV }}
-        source: "package.json,package-lock.json"
+        source: "server/app/*, server/database/*.js, server/database/*.json, routes/*, server/database/MomgoDB/*.js, package.json, package-lock.json"
         target: "/var/www/hlm.lordrepha.de"
     - name: multiple command
       uses: appleboy/ssh-action@v0.1.6
