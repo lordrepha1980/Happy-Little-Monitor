@@ -25,38 +25,21 @@ module.exports  = {
         const main          = await mob.get('custom/main')
         const User          = await mob.get('data/user')
         const Certs         = await mob.get('data/certs')
-        const Nginx         = await mob.get('data/nginxLog')
+        const NginxLog      = await mob.get('data/nginxLog')
         const { data: user} = await User.findOne({ auth: true, noCheck: true, query: {} })
 
-        function parseNginxLog(entry) {
-            console.log(entry)
-            const [remoteAddr, remoteUser, time, request, status, bodyBytesSent, referer, userAgent] = entry.split(' ');
-            const [method, path, httpVersion] = request.split(' ');
-
-            return {
-                remote_addr: remoteAddr,
-                remote_user: remoteUser,
-                time: new Date(time + ' UTC'),
-                method,
-                path,
-                http_version: httpVersion,
-                status,
-                body_bytes_sent: bodyBytesSent,
-                referer,
-                user_agent: userAgent
-            };
-        }
+        
         if ( user.nginxPath && user.nginxLogfiles ) {
-            const logFiles = user.nginxLogfiles.trim().split(',')
+            const logFiles = user.nginxLogfiles.split(',')
             
-            logFiles.forEach((file) => {
-                const nginxPath = user.nginxPath + file
+            for ( const file of logFiles ) {
+                const nginxPath = user.nginxPath + file.trim()
                 if ( fs.existsSync(nginxPath) )
-                    fs.watchFile( nginxPath, () => {
+                    fs.watch( nginxPath, async () => {
                         const lastLine = fs.readFileSync(nginxPath, 'utf8').split('\n').filter(Boolean).pop();
-                        console.log(parseNginxLog(lastLine))
+                        await NginxLog.update( { table: 'nginxLog', io, auth: true, noCheck: true, body: JSON.parse(lastLine) } )
                     } )
-            })
+            }
         }
         const getCerts = new CronJob(
             '00 00 00 * * *',
