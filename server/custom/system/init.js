@@ -47,14 +47,14 @@ module.exports  = {
                             date,
                             valid
                         } 
-                    }
 
-                    if (moment().isAfter(moment(expiryMatch[1].split(' ')[3]).subtract(20, days))) {
-                        main.sendMail( { body: {
-                            email: user.alarmMail,
-                            subject: `HLM - ${nameMatch[1]} - SSL Certificate expires in ${valid}`,
-                            text: `SSL Certificate expires in ${valid} \n\n ${cert}`
-                        } } )
+                        if (moment().isAfter(moment(date).subtract(20, 'days'))) {
+                            main.sendMail( { body: {
+                                email: user.alarmMail,
+                                subject: `HLM - ${nameMatch[1]} - SSL Certificate expires in ${valid}`,
+                                text: `SSL Certificate expires in ${valid} \n\n ${cert}`
+                            } } )
+                        }
                     }
                 });
 
