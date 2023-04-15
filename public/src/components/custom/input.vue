@@ -15,6 +15,7 @@
         :label="label" 
         hide-bottom-space
         :rules="getRules()"
+        :hint="hint"
     >
         <template v-slot:append v-if="type === 'password'">
             <q-icon
@@ -76,6 +77,10 @@ const props = defineProps({
         default: 'md'
     },
     icon: {
+        type: String,
+        default: undefined
+    },
+    hint: {
         type: String,
         default: undefined
     }

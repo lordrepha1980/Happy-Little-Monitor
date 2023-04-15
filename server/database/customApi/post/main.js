@@ -64,31 +64,25 @@ class main extends Custom {
         ctx.body = company
     }
 
-    async sendConfirmMail( {to, body, ctx, user, confirmId} ) {
-        const link = `${ this.clientPath() }/confirm/${confirmId}`
-        this.sendMail( { body: {
-            email: to,
-            subject: 'Bitte bestätigen Sie Ihre E-Mail Adresse',
-            text: `Um Ihre E-Mail Adresse zu bestätigen klicken Sie bitte auf den folgenden Link: ${link}`
-        }, ctx: ctx } )
-    }
-
-    async stopProcess( {body, ctx} ) {
+        
+        //======= begin custom auth methods =======
+async stopProcess ( {body, ctx} ) {
+if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
         if ( body.process !== undefined )
             pm2.stop(body.process)
     }
-
-    async resetProcess( {body, ctx} ) {
+async resetProcess ( {body, ctx} ) {
+if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
         if ( body.process !== undefined )
             pm2.reset(body.process)
     }
-
-    async restartProcess( {body, ctx} ) {
+async restartProcess ( {body, ctx} ) {
+if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
         if ( body.process !== undefined )
             pm2.restart(body.process)
     }
-
-    async getLogFilePM2( {body, ctx} ) { 
+async getLogFilePM2 ( {body, ctx} ) {
+if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} } 
         const path = body.path
 
         function readFile () {
@@ -97,11 +91,11 @@ class main extends Custom {
                 const readStream = fs.createReadStream(path, {
                     start: (fs.statSync(path).size - 1000000 >= 0) ? ( fs.statSync(path).size - 1000000 ) : 0
                 });
-    
+
                 readStream.on('data', data => {
                     chunk += data.toString()
                 });
-    
+
                 readStream.on('end', ( data ) => {
                     resolve(chunk)
                 });
@@ -113,8 +107,8 @@ class main extends Custom {
         ctx.body = { data: { data: data } }
         
     }
-
-    async sendMail ( { body, ctx } ) {
+async sendMail ( { body, ctx } ) {
+if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
         try {
             const email = config.email;
             const options = {
@@ -145,7 +139,7 @@ class main extends Custom {
                     ctx.body = { data: 'ok' }
                 else
                     ctx.body = { error: 'ok' }
-           
+        
 
         } catch (error) {
             debug('custom sendMail error: ' + error)
@@ -154,11 +148,7 @@ class main extends Custom {
         }
     }
 
-        
-        //======= begin custom auth methods =======
-        
-            
-        
+
         //======= end custom auth methods =======
         
 }

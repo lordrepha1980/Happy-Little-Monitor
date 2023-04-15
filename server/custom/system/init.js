@@ -8,70 +8,29 @@ const pm2           = require('pm2')
 const fs            = require('fs')
 const ip            = require('ip')
 const os            = require('os')
-const sys           = require('systeminformation')
 const http          = require('http')
-const { curly }     = require("node-libcurl");
 const uid           = require('uuid')
-const util          = require('util');
-const { exec }      = require('child_process');
-const execPromise   = util.promisify(exec);
 
 
 module.exports  = {
     init: async (io) => {
         let intervallPM2    = null
         let count           = 0
-        const nginxPath     = '/var/log/nginx/access.log'
         const main          = await mob.get('custom/main')
         const User          = await mob.get('data/user')
         const Certs         = await mob.get('data/certs')
-        const NginxLog      = await mob.get('data/nginxLog')
+        const Ssl           = await mob.get('custom/ssl')
+        const Nginx         = await mob.get('custom/nginx')
         const { data: user} = await User.findOne({ auth: true, noCheck: true, query: {} })
 
+        //start nginxWriteLog
+        Nginx.nginxWriteLog({ctx: {auth: true}})
         
-        if ( user.nginxPath && user.nginxLogfiles ) {
-            const logFiles = user.nginxLogfiles.split(',')
-            
-            for ( const file of logFiles ) {
-                const nginxPath = user.nginxPath + file.trim()
-                if ( fs.existsSync(nginxPath) )
-                    fs.watch( nginxPath, async () => {
-                        const lastLine = fs.readFileSync(nginxPath, 'utf8').split('\n').filter(Boolean).pop();
-                        await NginxLog.update( { table: 'nginxLog', io, auth: true, noCheck: true, body: JSON.parse(lastLine) } )
-                    } )
-            }
-        }
+        // start cronjob for ssl certs
         const getCerts = new CronJob(
             '00 00 00 * * *',
             async function() {
-                
-                let certs = {}
-                const { stdout } = await execPromise('certbot certificates')
-                const certificates = stdout.split(/(?=Certificate Name:)/g);
-                    
-                certificates.forEach((cert) => {
-                    const nameMatch = cert.match(/Certificate Name:\s([^\n]+)/);
-                    const expiryMatch = cert.match(/Expiry Date:\s([^\n]+)/);
-                    if (nameMatch && expiryMatch) {
-                        const name = nameMatch[1];
-                        const date = `${expiryMatch[1].split(' ')[0]} ${expiryMatch[1].split(' ')[1]}`;
-                        const valid = `${expiryMatch[1].split(' ')[3]} days`;
-                        certs[name] = {
-                            date,
-                            valid
-                        } 
-
-                        if (moment().isAfter(moment(date).subtract(20, 'days'))) {
-                            main.sendMail( { body: {
-                                email: user.alarmMail,
-                                subject: `HLM - ${nameMatch[1]} - SSL Certificate expires in ${valid}`,
-                                text: `SSL Certificate expires in ${valid} \n\n ${cert}`
-                            } } )
-                        }
-                    }
-                });
-
-                Certs.update({ auth: true, noCheck: true, query: {_id: '1'}, body: {_id: '1', certs} })
+                Ssl.writeSSLCerts({ ctx: { auth: true } })
             },
             null,
             true,
@@ -79,7 +38,8 @@ module.exports  = {
             null,
             !process.env.DEV
         );
-
+        
+        //read log and error files for mail
         function readFile (path) {
             if (!path)
                 return null
@@ -109,57 +69,14 @@ module.exports  = {
                 text = `------------ERROR LOG------------\n${errorLog}\n\n------------OUT LOG------------\n${outLog}`
             }
 
-            main.sendMail( { body: {
+            main.sendMail( { ctx: {auth: true}, body: {
                 email: user.alarmMail,
                 subject: `HLM - ${name} - Process ${status.toUpperCase()}`,
                 text,
             } } )
         }
-                            
-        function calcBytes (mem) { 
-            const units = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
 
-            let l = 0
-            let n = mem || 0
-
-            while(n >= 1000 && ++l) {
-                n = n / 1000;
-            }
-            
-            
-            return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
-        }
-
-        function nginxStat (body) {
-            const nginxStatus = {};
-
-            // parse the number of active connections
-            const activeConnections = body.match(/Active connections: (\d+)/)[1];
-            nginxStatus.activeConnections = parseInt(activeConnections);
-
-            // parse the server metrics
-            const serverMetrics = body.match(/server accepts handled requests\n\s*(\d+)\s+(\d+)\s+(\d+)/);
-            nginxStatus.server = {
-                accepts: parseInt(serverMetrics[1]),
-                handled: parseInt(serverMetrics[2]),
-                requests: parseInt(serverMetrics[3])
-            };
-
-            // parse the connection states
-            const connectionStates = body.match(/Reading: (\d+) Writing: (\d+) Waiting: (\d+)/);
-            nginxStatus.connections = {
-                reading: parseInt(connectionStates[1]),
-                writing: parseInt(connectionStates[2]),
-                waiting: parseInt(connectionStates[3])
-            };
-
-            return nginxStatus;
-        }
-
-
-        //Network
-        const Network = await mob.get('data/network')
-
+        //PM2 Status
         intervallPM2 = setInterval( async () => {
             pm2.connect(async (err) => {
                 if (err) {
@@ -242,104 +159,12 @@ module.exports  = {
             });
         }, 1000)
 
-        const valueObject = {
-            mem: 'free, used, total',
-            currentLoad: 'avgLoad, currentLoad, cpus',
-            cpu: '*',
-            osInfo: 'platform, release',
-            system: 'model, manufacturer',
-            networkStats: '*'
-            //fsSize: 'size, used, available',
-        }
-
-        //server status
-        sys.observe(valueObject, 1000, async (data) => {
-
-            let {data: oldResMonth} = await Network.findOne( { table: 'network', auth: true, noCheck: true, query: { _id: moment().format('YYYY-MM')}} )
-            
-            if ( oldResMonth && oldResMonth.rx_sec !== undefined ) {
-                oldResMonth.rx_sec += data.networkStats[0].rx_sec || 0
-                oldResMonth.rx_human = calcBytes(oldResMonth.rx_sec)
-            }
-
-            if ( oldResMonth && oldResMonth.tx_sec !== undefined ) {
-                oldResMonth.tx_sec += data.networkStats[0].tx_sec || 0
-                oldResMonth.tx_human = calcBytes(oldResMonth.tx_sec)
-            }
-
-            if ( !oldResMonth ) 
-                oldResMonth = {
-                    _id: moment().format('YYYY-MM'),
-                    rx_sec: data.networkStats[0].rx_sec || 0,
-                    tx_sec: data.networkStats[0].tx_sec || 0,
-                    tx_human: calcBytes(data.networkStats[0].tx_sec),
-                    rx_human: calcBytes(data.networkStats[0].rx_sec),
-                    month: moment().format('YYYY-MM'),
-                    days: []
-                } 
-
-            let oldResDay = oldResMonth.days.find(( dayItem ) => {
-                
-                return moment().format('YYYY-MM-DD') === dayItem._id
-            })
-
-
-
-            if ( !oldResDay ) {
-                oldResDay = {
-                    _id: moment().format('YYYY-MM-DD'),
-                    rx_sec: data.networkStats[0].rx_sec || 0,
-                    tx_sec: data.networkStats[0].tx_sec || 0,
-                    tx_human: calcBytes(data.networkStats[0].tx_sec),
-                    rx_human: calcBytes(data.networkStats[0].rx_sec)
-                }
-
-                oldResMonth.days.push(oldResDay)
-            }
-
-            
-            if ( oldResDay && oldResDay.rx_sec !== undefined ) {
-                oldResDay.rx_sec += data.networkStats[0].rx_sec || 0
-                oldResDay.rx_human = calcBytes(oldResDay.rx_sec)
-            }
-
-            if ( oldResDay && oldResDay.tx_sec !== undefined ) {
-                oldResDay.tx_sec += data.networkStats[0].tx_sec || 0
-                oldResDay.tx_human = calcBytes(oldResDay.tx_sec)
-            }
-
-            const resMonth = await Network.update( { io, auth: true, noCheck: true, 
-                query: { _id: moment().format('YYYY-MM')},
-                body: oldResMonth
-            } )
-
-            io.emit('networkStatus', { data: resMonth.data })
-            io.emit('serverStatus', { data })
-        })
-
+        //systeminformation
+        const Systeminformation = await mob.get('custom/systeminformation')
+        Systeminformation.sysStatus({ io, ctx: {auth: true} })
+        
         //nginx status
-        let nginxLog = {
-            activeConnections: 7,
-            server: { accepts: 2777, handled: 2777, requests: 6707 },
-            connections: { reading: 0, writing: 3, waiting: 4 }
-        } 
-
-        let intervallNginx = null
-
-        try{
-            intervallNginx = setInterval( async () => {
-                try{
-                    const { data: nginxRawLog } = await curly.get('http://127.0.0.1/nginx_status');
-                    nginxLog = nginxStat(nginxRawLog)
-                    io.emit('nginxStatus', { data: nginxLog })
-                } catch (error) {
-                    //nginxLog.error = error.message
-                    io.emit('nginxStatus', { data: nginxLog })
-                }
-            }, 5000)
-        } catch (error) {
-            clearInterval(intervallNginx)
-        }
+        Nginx.nginxStatus({ io, ctx: {auth: true} })
 
     }
 }

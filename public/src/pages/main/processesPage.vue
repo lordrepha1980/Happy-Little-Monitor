@@ -138,11 +138,17 @@
                                     </div>
                                 </div>
                                 <div class="row text-body1 q-pl-xs q-pb-sm">
+                                    <div class="col-12">
+                                        <q-separator dark spaced />
+                                    </div>
                                     <div class="col-12 col-sm-6" :class="sslColor(proc.sslExpiry.date)" v-if="proc.pm2_env.created_at">
                                         SSL expires on: {{moment(proc.sslExpiry.date).format('YYYY-MM-DD HH:mm')}}
                                     </div>
                                     <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
                                         SSL expires in: {{proc.sslExpiry.valid}}
+                                    </div>
+                                    <div class="col-12">
+                                        <q-separator dark spaced />
                                     </div>
                                     <div class="col-12 col-sm-6" v-if="proc.pm2_env.created_at">
                                         Created at: {{`${moment(proc.pm2_env.created_at).format('YYYY-MM-DD HH:mm')}` }}

@@ -37,16 +37,10 @@ const send              = require('koa-send')
 
         ctx.body = company
     }
+{% endblock %}
 
-    async sendConfirmMail( {to, body, ctx, user, confirmId} ) {
-        const link = `${ this.clientPath() }/confirm/${confirmId}`
-        this.sendMail( { body: {
-            email: to,
-            subject: 'Bitte bestätigen Sie Ihre E-Mail Adresse',
-            text: `Um Ihre E-Mail Adresse zu bestätigen klicken Sie bitte auf den folgenden Link: ${link}`
-        }, ctx: ctx } )
-    }
 
+{% block methodFunctionAuth %}
     async stopProcess( {body, ctx} ) {
         if ( body.process !== undefined )
             pm2.stop(body.process)
@@ -71,11 +65,11 @@ const send              = require('koa-send')
                 const readStream = fs.createReadStream(path, {
                     start: (fs.statSync(path).size - 1000000 >= 0) ? ( fs.statSync(path).size - 1000000 ) : 0
                 });
-    
+
                 readStream.on('data', data => {
                     chunk += data.toString()
                 });
-    
+
                 readStream.on('end', ( data ) => {
                     resolve(chunk)
                 });
@@ -119,7 +113,7 @@ const send              = require('koa-send')
                     ctx.body = { data: 'ok' }
                 else
                     ctx.body = { error: 'ok' }
-           
+        
 
         } catch (error) {
             debug('custom sendMail error: ' + error)
@@ -127,4 +121,5 @@ const send              = require('koa-send')
                 ctx.body = {error: '' + error}
         }
     }
+
 {% endblock %} 
