@@ -35,7 +35,8 @@ export const processesStore = defineStore('processes', {
         _loading: <boolean> false,
         _showServerStatusDialog: <boolean> false,
         _datapoints: <any> {},
-        _processSearch: <string> ''
+        _processSearch: <string> '',
+        _showNginxStatusDialog: <boolean> false
     }),
     getters: {
         data: (state) => state._data,
@@ -57,7 +58,8 @@ export const processesStore = defineStore('processes', {
         loading: (state) => state._loading,
         showServerStatusDialog: (state) => state._showServerStatusDialog,
         datapoints: (state) => state._datapoints,
-        processSearch: (state) => state._processSearch
+        processSearch: (state) => state._processSearch,
+        showNginxStatusDialog: (state) => state._showNginxStatusDialog
     },
     actions: {
         async init () {
@@ -128,6 +130,9 @@ export const processesStore = defineStore('processes', {
         },
         setShowServerStatusDialog() {
             this._showServerStatusDialog = !this._showServerStatusDialog
+        },
+        setShowNginxStatusDialog() {
+            this._showNginxStatusDialog = !this._showNginxStatusDialog
         },
         setShowConfirmActionDialog(btn?: any) {
             if (this._recordId === null) {

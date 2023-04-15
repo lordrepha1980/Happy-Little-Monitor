@@ -67,6 +67,9 @@
                             <div class="col-6 col-sm-4 ellipsis">
                                 <q-icon name="fa-solid fa-clock" size="20px" color="white" class="q-pr-sm"/> {{ nginxRecord.connections.waiting}}
                             </div>
+                            <div class="col-12 col-sm-8 flex justify-end">
+                                <q-btn color="primary" class="q-mt-sm" unelevated round icon="account_tree"  size="12px" text-color="dark"  @click="useProcessesStore.setShowNginxStatusDialog" />
+                            </div>
                         </template>
                         <template v-else >
                             <div class="col-12 text-caption text-primary q-py-sm">
@@ -188,6 +191,7 @@
             </cust-dialog>
             <process-log-dialog v-if="openLogProcess" v-model="openLogProcess" />
             <server-status-dialog v-if="showServerStatusDialog" v-model="showServerStatusDialog" />
+            <nginx-status-dialog v-if="showNginxStatusDialog" v-model="showNginxStatusDialog" />
         </template>
     </cust-page>
 </template>
@@ -206,6 +210,7 @@ import CustDialog           from 'src/components/custom/dialog.vue'
 import { processesStore }   from 'src/stores/processes.store'
 import { nginxStatusStore } from 'src/stores/nginxstatus.store'
 import ServerStatusDialog   from 'src/components/serverStatusDialog.vue'
+import NginxStatusDialog    from 'src/components/nginxStatusDialog.vue'
 import SparkleChart         from 'src/components/sparkleChart.vue'
 import { accountStore }     from 'src/stores/account.store'
 import moment               from 'moment';
@@ -229,7 +234,8 @@ const {
     loading,
     showServerStatusDialog,
     openLogProcess,
-    processSearch
+    processSearch,
+    showNginxStatusDialog
 } = storeToRefs(useProcessesStore)
 
 watch( processSearch, (val) => {

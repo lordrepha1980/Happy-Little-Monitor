@@ -36,33 +36,80 @@ class nginx extends Custom {
         
         
         //======= begin custom auth methods =======
-async nginxLogAggCountIP ( { ctx } ) {
+async nginxLogAggCountIP ( { ctx, io } ) {
 if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
-    const { client, db }        = mob.db()
-    DB.collection('nginxLog').aggregate([
-        { $group: { _id: "$remote_addr", count: { $sum: 1 } } },
-        { $sort: { count: -1 } }
-    ]).toArray( (err, result) => {
-        if (err) throw err;
-        console.log(result);
-        client.close();
-    });
-
+    const { client, db }        = await mob.db()
+    try {
+        db.collection('nginxLog').aggregate([
+            { $group: { _id: "$address", count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]).toArray( (err, result) => {
+            if (err) throw err;
+            io.emit('nginxLogAggCountIP', { data: result })
+            client.close();
+        });
+    } catch (error) {
+        client.close()
+        return []
+    }
 }
-async nginxWriteLog ( { ctx } ) {
+async nginxLogAggDayHourCount ( { ctx, io } ) {
 if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
-    const defaultPath = '/var/log/nginx/'
-    const User          = await mob.get('data/user')
-    const { data: user} = await User.findOne({ auth: true, noCheck: true, query: {} })
+    const { client, db }        = await mob.db()
+    const time    = dayjs().subtract(30, 'day').valueOf() / 1000
+    try {
+        db.collection('nginxLog').aggregate([
+            { $match: { time: { $gt: time, $exists: true } } },
+            {
+                $addFields: {
+                    date: {
+                        $toDate: { $multiply: ['$time', 1000]}
+                    }
+                }
+            },
+            { 
+                $group: { 
+                    _id: { 
+                        day: { $dayOfMonth: "$date"  },
+                        hour: { $hour: "$date" }
+                    },
+                    count: { $sum: 1 } 
+                } 
+            },
+            
+            { $sort: { count: -1 } }
+            
+        ]).toArray( (err, result) => {
+            if (err) throw err;
+            io.emit('nginxLogAggDayHourCount', { data: result })
+            client.close();
+        });
+    } catch (error) {
+        client.close()
+        return []
+    }
+}
+async nginxWriteLog ( { ctx, io } ) {
+if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
+    const defaultPath       = '/var/log/nginx/'
+    const User              = await mob.get('data/user')
+    const { data: user}     = await User.findOne({ auth: true, noCheck: true, query: {} })
+    const NginxLog          = await mob.get('data/nginxLog')
+    const { client, db }    = await mob.db() 
+    const NginxColl         = db.collection('nginxLog')
+
     if ( user.nginxLogfiles ) {
-        const logFiles = user.nginxLogfiles.split(',')
-        
+        const logFiles      = user.nginxLogfiles.split(',')
+        const deleteTime    = dayjs().subtract(60, 'days').valueOf() / 1000
+        await NginxColl.deleteMany({ time: {$lt: deleteTime} })
+
         for ( const file of logFiles ) {
             const nginxPath = (user.nginxPath || defaultPath) + file.trim()
             if ( fs.existsSync(nginxPath) )
                 fs.watch( nginxPath, async () => {
                     const lastLine = fs.readFileSync(nginxPath, 'utf8').split('\n').filter(Boolean).pop();
-                    await NginxLog.update( { table: 'nginxLog', io, auth: true, noCheck: true, body: JSON.parse(lastLine) } )
+                    const body = JSON.parse(lastLine)
+                    await NginxLog.update( {  io, auth: true, noCheck: true, body } )
                 } )
         }
     }
@@ -108,10 +155,13 @@ if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.
     try{
         intervallNginx = setInterval( async () => {
             try {
+                await this.nginxLogAggCountIP({ ctx: { auth: true }, io })
+                await this.nginxLogAggDayHourCount({ ctx: { auth: true }, io })
+
                 const { data: nginxRawLog } = await curly.get('http://127.0.0.1/nginx_status');
-                nginxLog = this.nginxStat({body: nginxRawLog, ctx: { auth: true }})
+                nginxLog = await this.nginxStat({body: nginxRawLog, ctx: { auth: true }})
                 io.emit('nginxStatus', { data: nginxLog })
-                this.nginxLogAggCountIP({ ctx: { auth: true } })
+                
             } catch (error) {
                 //nginxLog.error = error.message
                 io.emit('nginxStatus', { data: nginxLog })

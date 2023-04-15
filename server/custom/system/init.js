@@ -24,7 +24,7 @@ module.exports  = {
         const { data: user} = await User.findOne({ auth: true, noCheck: true, query: {} })
 
         //start nginxWriteLog
-        Nginx.nginxWriteLog({ctx: {auth: true}})
+        Nginx.nginxWriteLog({io, ctx: {auth: true}})
         
         // start cronjob for ssl certs
         const getCerts = new CronJob(

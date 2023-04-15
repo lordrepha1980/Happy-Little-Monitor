@@ -25,7 +25,7 @@ async writeSSLCerts ( { ctx } ) {
                 valid
             } 
 
-            if (moment().isAfter(moment(date).subtract(20, 'days'))) {
+            if (dayjs().isAfter(dayjs(date).subtract(20, 'day'))) {
                 main.sendMail( { ctx: { auth: true }, body: {
                     email: user.alarmMail,
                     subject: `HLM - ${nameMatch[1]} - SSL Certificate expires in ${valid}`,

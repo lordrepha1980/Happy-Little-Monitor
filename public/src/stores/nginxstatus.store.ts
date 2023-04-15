@@ -14,11 +14,15 @@ export interface ILogStore {
 export const nginxStatusStore = defineStore('nginxStatus', {
     state: () => ({
         _data: <any> [],
-        _record: <any> {}
+        _record: <any> {},
+        _nginxLogAggCountIP: <any> {},
+        _nginxLogAggDayHourCount: <any> {}
     }),
     getters: {
         data: (state) => state._data,
-        record: (state) => state._record
+        record: (state) => state._record,
+        nginxLogAggCountIP: (state) => state._nginxLogAggCountIP,
+        nginxLogAggDayHourCount: (state) => state._nginxLogAggDayHourCount
     },
     actions: {
         async init () {
@@ -27,6 +31,14 @@ export const nginxStatusStore = defineStore('nginxStatus', {
 
             io.value.on('nginxStatus', ( { data }: any ) => {
                 this._record = data;
+            })
+
+            io.value.on('nginxLogAggCountIP', ( { data }: any ) => {
+                this._nginxLogAggCountIP = data;
+            })
+
+            io.value.on('nginxLogAggDayHourCount', ( { data }: any ) => {
+                this._nginxLogAggDayHourCount = data;
             })
         }
     }
