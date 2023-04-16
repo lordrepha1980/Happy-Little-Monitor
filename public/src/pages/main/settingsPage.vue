@@ -55,7 +55,7 @@
                             <cust-input label="E-Mail" @blur="saveForm" :disable="false" v-model="form.alarmMail"  />
                         </div>
                         <div class="col-12 text-h6 text-white q-mt-lg q-pl-sm">
-                            Nginx logfiles
+                            Nginx logfiles (After change, restart HLM-PM2 instance)
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
@@ -64,7 +64,10 @@
                             <cust-input label="Path" @blur="saveForm" :disable="false" v-model="form.nginxPath" hint="default: /var/log/nginx/"   />
                         </div>
                         <div class="col-12 q-mt-md">
-                            <cust-input label="Logfiles" @blur="saveForm" :autogrow="true" :disable="false" v-model="form.nginxLogfiles" hint="After change, restart HLM-PM2 instance"  />
+                            <cust-input label="Logfiles" @blur="saveForm" :autogrow="true" :disable="false" v-model="form.nginxLogfiles"  />
+                        </div>
+                        <div class="col-12 q-mt-md">
+                            <cust-input label="IP Filter" @blur="saveForm" :autogrow="true" :disable="false" v-model="form.nginxIpFilter" hint="Ip addresses don't show in statistic"  />
                         </div>
                     </div>
                 </template>

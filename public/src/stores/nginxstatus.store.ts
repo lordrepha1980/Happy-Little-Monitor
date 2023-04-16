@@ -16,13 +16,15 @@ export const nginxStatusStore = defineStore('nginxStatus', {
         _data: <any> [],
         _record: <any> {},
         _nginxLogAggCountIP: <any> {},
-        _nginxLogAggDayHourCount: <any> {}
+        _nginxLogAggDayHourCount: <any> {},
+        _nginxLogAggErrorStatus: <any> {}
     }),
     getters: {
         data: (state) => state._data,
         record: (state) => state._record,
         nginxLogAggCountIP: (state) => state._nginxLogAggCountIP,
-        nginxLogAggDayHourCount: (state) => state._nginxLogAggDayHourCount
+        nginxLogAggDayHourCount: (state) => state._nginxLogAggDayHourCount,
+        nginxLogAggErrorStatus: (state) => state._nginxLogAggErrorStatus
     },
     actions: {
         async init () {
@@ -39,6 +41,10 @@ export const nginxStatusStore = defineStore('nginxStatus', {
 
             io.value.on('nginxLogAggDayHourCount', ( { data }: any ) => {
                 this._nginxLogAggDayHourCount = data;
+            })
+
+            io.value.on('nginxLogAggErrorStatus', ( { data }: any ) => {
+                this._nginxLogAggErrorStatus = data;
             })
         }
     }
