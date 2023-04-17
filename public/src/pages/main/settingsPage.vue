@@ -61,6 +61,9 @@
                             <q-separator dark/>
                         </div>
                         <div class="col-12 q-mt-md">
+                            <cust-input label="Log days" type="number" @blur="saveForm" :disable="false" v-model="form.saveDays" hint="default: 60 days"   />
+                        </div>
+                        <div class="col-12 q-mt-md">
                             <cust-input label="Path" @blur="saveForm" :disable="false" v-model="form.nginxPath" hint="default: /var/log/nginx/"   />
                         </div>
                         <div class="col-12 q-mt-md">

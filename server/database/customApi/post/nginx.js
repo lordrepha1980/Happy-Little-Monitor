@@ -111,14 +111,30 @@ if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.
                 $group: { 
                     _id: { 
                         day: { $dayOfMonth: "$date"  },
-                        hour: { $hour: "$date" }
+                        hour: { $hour: "$date" },
+                        year: { $year: "$date" },
+                        month: { $month: "$date" }
                     },
                     count: { $sum: 1 } 
                 } 
             },
-            
-            { $sort: { count: -1 } }
-            
+            { $sort: { '_id.month': -1, '_id.day': -1, '_id.hour': 1 } },
+            {
+                $group: {
+                    _id: {
+                        year: '$_id.year',
+                        month: '$_id.month',
+                        day: '$_id.day'
+                    },
+                    data: {
+                        $push: {
+                            hour: '$_id.hour',
+                            count: '$count'
+                        }
+                    }
+                }
+            },
+            { $sort: { '_id': -1 } },
         ]).toArray( (err, result) => {
             if (err) throw err;
             io.emit('nginxLogAggDayHourCount', { data: result })
@@ -140,7 +156,7 @@ if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.
 
     if ( user.nginxLogfiles ) {
         const logFiles      = user.nginxLogfiles.split(',')
-        const deleteTime    = dayjs().subtract(60, 'days').valueOf() / 1000
+        const deleteTime    = dayjs().subtract(user.saveDays || 60, 'days').valueOf() / 1000
         await NginxColl.deleteMany({ time: {$lt: deleteTime} })
 
         for ( const file of logFiles ) {

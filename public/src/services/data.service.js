@@ -34,55 +34,10 @@ export const dataService = {
         } catch (error) {
        
             global.Note({
-                message: error.message || 'Fehler beim speichern',
+                message: error.message || 'Error saving',
                 type: 'error',
             })
             return null
-        }
-    },
-    confirmRegister: async (_id) => {
-        try {
-            const result = await api({
-                method: 'POST',
-                url: '/custom/main/confirmRegister',
-                data: { _id }
-            })
-
-            return result.data?.data || null
-        } catch (error) {
-            global.Note({
-                message: `Fehler ${error}`,
-                type: 'error',
-            })
-        }
-    },
-    register: async (body) => {
-        try {
-            const result = await api({
-                method: 'POST',
-                url: '/auth/register',
-                data: { body},
-            })
-
-            if ( result.error ) {
-                global.Note({
-                    message: result.error,
-                    type: 'error',
-                })
-
-                return null
-            }else
-                global.Note({
-                    message: 'Registrierung erfolgreich, bitte bestätigen Sie Ihre E-Mail Adresse',
-                    type: 'success',
-                })
-
-            return result.data.data
-        } catch (error) {
-            global.Note({
-                message: 'E-Mail Adresse wurde bereits registriert',
-                type: 'error',
-            })
         }
     },
     customApi: async ( {endpoint, action, body} ) => {
@@ -103,63 +58,6 @@ export const dataService = {
         }
 
         return result.data.data
-    },
-    downloadFile: async ( {endpoint, action, body, suffix} ) => {
-        const result = await api({
-            method: 'POST',
-            url: `/custom/${endpoint}/${action}`,
-            data: body,
-            responseType: 'arraybuffer'
-        })
-
-        if ( result.error ) {
-            global.Note({
-                message: result.data?.error || 'Error no data',
-                type: 'error',
-            })
-
-            return null
-        }else {
-            const type      =  `application/${suffix || 'pdf'}`
-
-            if ( !suffix ) {
-                const status = exportFile(
-                    body.filename || `${uid()}.pdf`,
-                    result.data,
-                    'text/pdf'
-                  )
-            }
-
-            if ( suffix === 'csv' ) {
-                const status = exportFile(
-                    body.filename,
-                    result.data,
-                    'text/csv'
-                  )
-            }
-        }
-    },
-    sendMail: async (body) => {
-        const result = await api({
-            method: 'POST',
-            url: '/custom/main/sendMail',
-            data: body,
-        })
-
-        if ( result.data?.error ) {
-            global.Note({
-                message: result.data?.error || 'Error send mail',
-                type: 'error',
-            })
-
-            return false
-        } else {
-            global.Note({
-                message: 'EMail erfolgreich gesendet',
-                type: 'success',
-            })
-            return true
-        }
     },
     relogin: async (body) => {
         try {
@@ -192,49 +90,17 @@ export const dataService = {
 
                 return result?.data?.data?.token || null
             }else
-                throw ('Login failed')
+                throw ('Error logging')
 
         } catch (error) {
             global.Note({
-                message: error.response.data.error || 'Fehler beim Login',
+                message: error.response.data.error || 'Error logging',
                 type: 'error',
             })
-            log('Fehler beim Login', error)
+            log('Error logging', error)
             return { error }
         }
     },
-    checkAuth : async (token) => {
-        try {
-            const result = await api({
-                method: 'POST',
-                url: '/auth/check'
-            })
-
-            return result
-        } catch (error) {
-            return { error }
-        }
-    },
-    // downloadInvoice: async (filename) => { 
-    //     const result = await api({
-    //         method: 'POST',
-    //         url: '/custom/pdf/downloadInvoice',
-    //         data: { filename },
-    //         responseType: 'arraybuffer'
-    //     })
-
-    //     if ( result.status === 201 ) {
-    //         global.Note({
-    //             message: result.data?.error || 'Error',
-    //             type: 'error'
-    //         })
-
-    //         return null
-    //     }else {
-    //         const url = window.URL.createObjectURL(new Blob([result.data], {type: 'application/pdf'}))
-    //         window.open(url);
-    //     }
-    // },
     dataSave: async ({ endpoint, data }) => {
         try {
             const result = await api({
@@ -243,11 +109,6 @@ export const dataService = {
                 data
             })
 
-            // if ( !result.error )
-            //     global.Note({
-            //         message: 'Successfully saved',
-            //         type: 'success',
-            //     })
             if ( result.error )
                 global.Note({
                     message: 'Error while saving',
@@ -288,49 +149,5 @@ export const dataService = {
                 type: 'error',
             })
         }
-    },
-    uploadFile: async ({body}) => {
-        const result = await api({
-            method: 'POST',
-            url: '/custom/main/uploadFile',
-            data: body
-        })
-
-        if ( !result.data.error ) {
-            global.Note({
-                message: 'Datei erfolgreich hochgeladen',
-                type: 'success',
-            })
-            return result.data.data
-        } else {
-            global.Note({
-                type: 'error',
-                message: result.data.error || 'Fehler beim hochladen der Datei'
-            })
-            return null
-        }
-    },
-
-    deleteFile: async (data) => {
-        const result = await api({
-            method: 'POST',
-            url: '/custom/main/deleteFile',
-            data
-        })
-
-        if ( !result.data.error ) {
-            global.Note({
-                message: 'Datei erfolgreich gelöscht',
-                type: 'success',
-            })
-            return result.data.data
-        } else {
-            global.Note({
-                type: 'error',
-                message: result.data.error || 'Fehler beim löschen der Datei'
-            })
-            return null
-        }
     }
-        
 }

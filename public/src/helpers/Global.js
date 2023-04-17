@@ -11,13 +11,13 @@ export default function Global( { } ) {
     const Note = ( { type, message, timeout } ) => {
         let color = 'negative';
         if ( type === 'error' && !message )
-            message = 'Fehler beim Speichern';
+            message = 'Error saving';
 
         if ( type === 'success' && !message )
-            message = 'Speichern erfolgreich';
+            message = 'Saving successful';
 
         if ( type === 'warning' && !message )
-            message = 'Warnung';
+            message = 'Warning';
 
         if ( type === 'error' )
             color = 'negative';

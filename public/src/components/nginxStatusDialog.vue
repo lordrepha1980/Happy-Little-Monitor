@@ -13,24 +13,10 @@
                 <q-scroll-area class="col-12" ref="LogScrollArea" style="width: calc(100vw); height: calc(100vh - 200px);">
                     <div class="row">
                         <div class="col-12 text-body1 bg-grey-9 text-bold q-mb-sm ">
-                            Top 10 IP's
+                            Requests per Hour last 10 days
                         </div>
-                        <div class="col-12">
-                            <q-list>
-                                <q-item class="q-px-none" dense v-for="(item, index) in nginxLogAggCountIP" :key="index">
-                                    <q-item-section class="itemBorder">
-                                        <div class="row">
-                                            <div class="col-6 col-sm-2 text-body2 text-bold q-pl-sm">
-                                                {{ item._id }} :
-                                            </div>
-                                            <div class="col-6 col-sm-10 text-right">
-                                                {{ item.count }}
-                                            </div>
-                                        </div>
-                                        
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
+                        <div class="col-12" v-for="data of nginxLogAggDayHourCount" :key="data._id">
+                            <bar-chart :value="data" />
                         </div>
                     </div>
                     
@@ -59,6 +45,28 @@
                             </q-list>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-12 text-body1 bg-grey-9 text-bold q-mb-sm ">
+                            Top 10 IP's
+                        </div>
+                        <div class="col-12">
+                            <q-list>
+                                <q-item class="q-px-none" dense v-for="(item, index) in nginxLogAggCountIP" :key="index">
+                                    <q-item-section class="itemBorder">
+                                        <div class="row">
+                                            <div class="col-6 col-sm-2 text-body2 text-bold q-pl-sm">
+                                                {{ item._id }} :
+                                            </div>
+                                            <div class="col-6 col-sm-10 text-right">
+                                                {{ item.count }}
+                                            </div>
+                                        </div>
+                                        
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </div>
+                    </div>
                 </q-scroll-area>
             </q-card-section>
         </q-card>
@@ -70,6 +78,7 @@ import { storeToRefs }          from 'pinia';
 import { serverstatusStore }    from 'src/stores/serverstatus.store'
 import { onMounted }            from 'vue'
 import { nginxStatusStore }     from 'src/stores/nginxstatus.store';
+import BarChart                 from 'src/components/custom/barChart.vue'
 
 const useNginxStatusStore           = nginxStatusStore()
 const { nginxLogAggCountIP, nginxLogAggDayHourCount, nginxLogAggErrorStatus } = storeToRefs(useNginxStatusStore)
