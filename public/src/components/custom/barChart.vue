@@ -38,7 +38,7 @@ function drawBarChart() {
         const dayofMonth = props.value._id
 
         let ctx = canvas.getContext("2d");
-        ctx.canvas.width = Screen.width - 60
+        ctx.canvas.width = Screen.width - 40
         const barSpacing = 20;
         const barWidth = (ctx.canvas.width - 24 * barSpacing) / 24;
 

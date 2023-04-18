@@ -10,7 +10,7 @@
                 </q-toolbar>
             </q-card-section>
             <q-card-section class="row logbook">
-                <div class="q-pr-sm" style="overflow-x: hidden; overflow-y: auto; width: calc(100vw - 50px); height: calc(100vh - 200px);">
+                <div class="q-pr-sm" style="overflow-x: hidden; overflow-y: auto; width: calc(100vw - 10px); height: calc(100vh - 200px);">
                     <div class="row">
                         <div class="col-12 text-body1 bg-grey-9 text-bold q-mb-sm ">
                             Requests per Hour last 10 days
