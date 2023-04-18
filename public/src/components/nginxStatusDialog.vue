@@ -10,7 +10,7 @@
                 </q-toolbar>
             </q-card-section>
             <q-card-section class="row logbook">
-                <q-scroll-area class="col-12" ref="LogScrollArea" style="width: calc(100vw); height: calc(100vh - 200px);">
+                <div class="q-pr-sm" style="overflow-x: hidden; overflow-y: auto; width: calc(100vw - 50px); height: calc(100vh - 200px);">
                     <div class="row">
                         <div class="col-12 text-body1 bg-grey-9 text-bold q-mb-sm ">
                             Requests per Hour last 10 days
@@ -25,24 +25,17 @@
                             Top 30 Errors
                         </div>
                         <div class="col-12">
-                            <q-list>
-                                <q-item class="q-px-none" dense v-for="(item, index) in nginxLogAggErrorStatus" :key="index">
-                                    <q-item-section class="itemBorder">
-                                        <div class="row">
-                                            <div class="col-3 text-body2 text-bold ellipsis q-pl-sm">
-                                                {{ item._id.status }}
-                                            </div>
-                                            <div class="col-7 text-bold ellipsis">
-                                                {{ item._id.uri }}
-                                            </div>
-                                            <div class="col-2 text-right ellipsis">
-                                                {{ item.count }}
-                                            </div>
-                                        </div>
-                                        
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
+                            <div class="row itemBorder" v-for="(item, index) in nginxLogAggErrorStatus" :key="index">
+                                <div class="col-3 text-body2 text-bold ellipsis q-pl-sm">
+                                    {{ item._id.status }}
+                                </div>
+                                <div class="col-7 text-bold ellipsis">
+                                    {{ item._id.uri }}
+                                </div>
+                                <div class="col-2 text-right ellipsis">
+                                    {{ item.count }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -67,7 +60,7 @@
                             </q-list>
                         </div>
                     </div>
-                </q-scroll-area>
+                </div>
             </q-card-section>
         </q-card>
     </q-dialog>
