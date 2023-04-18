@@ -61,6 +61,8 @@ async nginxLogAggErrorStatus ( { ctx, io, user } ) {
 async nginxLogAggDayHourCount ( { ctx, io, user } ) {
     const { client, db }        = await mob.db()
     const time    = dayjs().subtract(30, 'day').valueOf() / 1000
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset()
     let nin = []
     if ( user.nginxIpFilter ) {
         nin = user.nginxIpFilter.split(',')
@@ -72,7 +74,12 @@ async nginxLogAggDayHourCount ( { ctx, io, user } ) {
             {
                 $addFields: {
                     date: {
-                        $toDate: { $multiply: ['$time', 1000]}
+                        $toDate: {
+                            $subtract: [
+                                {$toLong: {$multiply: ['$time', 1000]}},
+                                {$multiply: [3600000, {$toInt: {$divide: [timezoneOffset, 60]}}]}
+                            ]
+                        }
                     }
                 }
             },
