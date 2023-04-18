@@ -101,7 +101,7 @@ if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.
     }
     try {
         db.collection('nginxLog').aggregate([
-            { $match: { time: { $gt: time, $exists: true }, address: {$exists: true, $nin: nin} } },
+            { $match: { time: { $gt: time, $exists: true }, address: {$exists: true} } },
             {
                 $addFields: {
                     date: {

@@ -70,7 +70,7 @@ async nginxLogAggDayHourCount ( { ctx, io, user } ) {
     }
     try {
         db.collection('nginxLog').aggregate([
-            { $match: { time: { $gt: time, $exists: true }, address: {$exists: true, $nin: nin} } },
+            { $match: { time: { $gt: time, $exists: true }, address: {$exists: true} } },
             {
                 $addFields: {
                     date: {
