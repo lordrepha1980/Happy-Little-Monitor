@@ -25,7 +25,7 @@ module.exports  = {
 
         //start nginxWriteLog
         Nginx.nginxWriteLog({io, ctx: {auth: true}})
-        
+        //sudo certbot certonly --manual --preferred-challenges=dns --email freelancer@christoph-duengel.de --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d *.lordrepha.de
         // start cronjob for ssl certs
         const getCerts = new CronJob(
             '00 00 00 * * *',
@@ -99,9 +99,18 @@ module.exports  = {
                             date: 'N/A',
                             valid: 'N/A'
                         }
+                        //renew sudo certbot certonly --manual --preferred-challenges=dns --email freelancer@christoph-duengel.de --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d *.lordrepha.de
+                        if ( certs?.certs ) {
+                            let sslCert = certs.certs[item.name]
 
-                        if ( certs?.certs )
-                            sslExpiry = certs.certs[item.name]
+                            if (!sslCert) {
+                                const parts = item.name.split('.'); // Trennen der Domain nach Punkten
+                                const mainDomain = parts.slice(-2).join('.'); // Zusammenführen der letzten beiden Teile
+                                sslCert = certs.certs[mainDomain]
+                            }
+
+                            sslExpiry = sslCert
+                        }
 
                         pm2Procs.push({
                             sslExpiry,

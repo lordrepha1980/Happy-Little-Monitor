@@ -9,6 +9,7 @@ const execPromise   = util.promisify(exec);
 {% block methodFunctionAuth %}
 async writeSSLCerts ( { ctx } ) {
     const Certs         = mob.get('data/certs')
+    const main          = mob.get('custom/main')
     let certs           = {}
     const { stdout }    = await execPromise('certbot certificates')
     const certificates  = stdout.split(/(?=Certificate Name:)/g);
@@ -27,7 +28,7 @@ async writeSSLCerts ( { ctx } ) {
 
             if (dayjs().isAfter(dayjs(date).subtract(20, 'day'))) {
                 main.sendMail( { ctx: { auth: true }, body: {
-                    email: user.alarmMail,
+                    email: ctx.user.alarmMail,
                     subject: `HLM - ${nameMatch[1]} - SSL Certificate expires in ${valid}`,
                     text: `SSL Certificate expires in ${valid} \n\n ${cert}`
                 } } )

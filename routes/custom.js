@@ -38,8 +38,8 @@ router
             return;
         }
 
-        result = await custom[ctx.params.action]( { body: ctx.request.body, ctx, io } )
-        ctx.status  = result?.error ? 400 : 200;
+        result.data = await custom[ctx.params.action]( { body: ctx.request.body, ctx, io } )
+        ctx.status  = result.error ? 400 : 200;
     })
 
 router
@@ -67,9 +67,9 @@ router
             return;
         }
 
-        result = await custom[ctx.params.action]( { body: ctx.request.body, ctx, io } )
+        result.data = await custom[ctx.params.action]( { body: ctx.request.body, ctx, io } )
 
-        ctx.status  = result?.error ? 400 : 200;
+        ctx.status  = result.error ? 400 : 200;
     })
 
 module.exports = router;

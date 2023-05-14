@@ -21,21 +21,21 @@ module.exports = class Register {
 
     }
 
-    async register ( bodyParse ) { 
+    async register ( {body, ctx} ) { 
 
-        config.debug.extend && debug('register params: ', bodyParse );
+        config.debug.extend && debug('register params: ', body );
         try {
-            const {data: userExists} = await user.findOne({ table: 'user', noCheck: true, query: { username: bodyParse.body.username }, auth: true, actions: { register: true, auth: true } });
+            const {data: userExists} = await user.findOne({ ctx, noCheck: true, query: { username: body.body.username }, auth: true, actions: { register: true, auth: true } });
 
             if ( userExists )
                 throw ("User already exists");
 
-            const hash = await bcrypt.hash( bodyParse.body.password, bcryptSalt )
+            const hash = await bcrypt.hash( body.body.password, bcryptSalt )
             
             if ( hash )
-                bodyParse.body.password = hash
+                body.body.password = hash
 
-            const { data: createdUser } = await user.update({ table: 'user', body: bodyParse.body, noCheck: true, auth: true, actions: { register: true, auth: true } });
+            const { data: createdUser } = await user.update({ ctx, body: body.body, noCheck: true, auth: true, actions: { register: true, auth: true } });
 
             if ( createdUser )
                 delete createdUser.password;

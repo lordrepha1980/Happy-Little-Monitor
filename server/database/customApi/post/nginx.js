@@ -91,7 +91,7 @@ if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.
 async nginxLogAggDayHourCount ( { ctx, io, user } ) {
 if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
     const { client, db }        = await mob.db()
-    const time    = dayjs().subtract(30, 'day').valueOf() / 1000
+    const time    = dayjs().subtract(10, 'day').valueOf() / 1000
     const now = new Date();
     const timezoneOffset = now.getTimezoneOffset()
     let nin = []

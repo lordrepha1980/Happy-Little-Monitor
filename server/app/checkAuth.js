@@ -12,11 +12,11 @@ module.exports = class checkAuth {
                 return;
             
             if ( !ctx.auth ){
-                throw ('Not authorized');
+                throw ('Not Authorized');
             }
         }
         catch (error) {
-            throw { error };
+            throw error;
         }
         
     }

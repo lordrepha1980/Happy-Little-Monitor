@@ -1,0 +1,39 @@
+- version: 0.0.0
++ version: 1.8.0
+- dependencies.ag-grid-vue3: ^28.2.1
+
+- dependencies.async-busboy: ^1.1.0
+
+- dependencies.axon: ^2.0.3
+
+- dependencies.chart.js: ^4.2.1
+
+- dependencies.cron: ^2.1.0
+
+- dependencies.ip: ^1.1.8
+
+- dependencies.json-diff: ^1.0.3
+
+- dependencies.jsondiffpatch: ^0.4.1
+
+- dependencies.koa-busboy: ^1.2.0
+
+- dependencies.moment: ^2.29.4
+
+- dependencies.node-libcurl: ^3.0.0
+
+- dependencies.numeral: ^2.0.6
+
+- dependencies.pdf-merger-js: ^4.2.0
+
+- dependencies.pdfmake: ^0.2.6
+
+- dependencies.pm2: ^5.3.0
+
+- dependencies.pm2-axon: ^4.0.1
+
+- dependencies.systeminformation: ^5.17.12
+
+- dependencies.vue-chartjs: ^5.2.0
+
++ dependencies.dayjs: ^1.11.7
