@@ -13,7 +13,7 @@
                 <div class="q-pr-sm" style="overflow-x: hidden; overflow-y: auto; width: calc(100vw - 10px); height: calc(100vh - 200px);">
                     <div class="row">
                         <div class="col-12 text-body1 bg-grey-9 text-bold q-mb-sm ">
-                            Requests per Hour last 10 days
+                            Requests per hour last 10 days
                         </div>
                         <div class="col-12" v-for="data of nginxLogAggDayHourCount" :key="data._id">
                             <bar-chart :value="data" />

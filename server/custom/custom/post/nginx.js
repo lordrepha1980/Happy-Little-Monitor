@@ -60,7 +60,7 @@ async nginxLogAggErrorStatus ( { ctx, io, user } ) {
 
 async nginxLogAggDayHourCount ( { ctx, io, user } ) {
     const { client, db }        = await mob.db()
-    const time    = dayjs().subtract(10, 'day').valueOf() / 1000
+    const time    = dayjs().subtract(9, 'day').valueOf() / 1000
     const now = new Date();
     const timezoneOffset = now.getTimezoneOffset()
     let nin = []
