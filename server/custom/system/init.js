@@ -84,13 +84,12 @@ module.exports  = {
                     debug(err);
                     return
                 }
-
-                const { db, client } = await mob.db()
-
                 pm2.list(async function(err, list) {
+                    const { db, client } = await mob.db()
                     const data = await db.command({ serverStatus: 1 })
                     const ChartData = await mob.get('data/chartdata')
-
+                    await client.close()
+                    // console.log('client close')
                     pm2Procs = []
 
                     for( const item of list) {
@@ -119,7 +118,7 @@ module.exports  = {
                             pm_id: item.pm_id,
                             monit: item.monit,
                             pm2_env: {
-                                created_at: item.pm2_env.created_at,
+                                created_at: item.pm2_env.pm_uptime,
                                 pm_out_log_path: item.pm2_env.pm_out_log_path,
                                 pm_err_log_path: item.pm2_env.pm_err_log_path,
                                 restart_time: item.pm2_env.restart_time,
@@ -152,7 +151,7 @@ module.exports  = {
 
                     io.emit('process', { data: pm2Procs, params: {
                         nginxLog: {error: true},
-                        chartpoints,
+                        chartpoints: chartpoints || [],
                         node_version: process.version,
                         node_os: process.platform,
                         mongoDB_connections: data.connections,
@@ -162,7 +161,6 @@ module.exports  = {
                         ip_address: ip.address()
                     } } )
                     pm2.disconnect()
-                    client.close()
                 });
 
             });
