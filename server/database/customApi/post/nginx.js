@@ -171,8 +171,12 @@ if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.
             if ( fs.existsSync(nginxPath) )
                 fs.watch( nginxPath, async () => {
                     const lastLine = fs.readFileSync(nginxPath, 'utf8').split('\n').filter(Boolean).pop();
-                    const body = JSON.parse(lastLine)
-                    await NginxLog.update( {  io, auth: true, noCheck: true, body } )
+                    try {
+                        const body = JSON.parse(lastLine)
+                        await NginxLog.update( {  io, auth: true, noCheck: true, body } )
+                    } catch (error) {
+                        log(error)
+                    }
                 } )
         }
     }
