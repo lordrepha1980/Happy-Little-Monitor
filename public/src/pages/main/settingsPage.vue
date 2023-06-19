@@ -118,14 +118,15 @@ const menu = ref([
     }
 ])
 
-async function saveForm () {
+async function saveForm () {    
     await useAccountStore.save()
 }
 
 watch([
         () => form.value.serverStatus,
         () => form.value.mongodbStatus,
-        () => form.value.nginxStatus
+        () => form.value.nginxStatus,
+        () => form.value.wildcardCertBotHetzner,
     ], async (newVal) => {
     await useAccountStore.save()
 })
