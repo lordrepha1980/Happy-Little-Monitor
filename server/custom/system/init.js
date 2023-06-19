@@ -30,7 +30,7 @@ module.exports  = {
         const getCerts = new CronJob(
             '00 00 00 * * *',
             async function() {
-                Ssl.writeSSLCerts({ ctx: { auth: true } })
+                Ssl.writeSSLCerts({ ctx: { auth: true, user } })
             },
             null,
             true,
@@ -98,7 +98,7 @@ module.exports  = {
                             date: 'N/A',
                             valid: 'N/A'
                         }
-                        //renew sudo certbot certonly --manual --preferred-challenges=dns --email freelancer@christoph-duengel.de --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d *.lordrepha.de
+                        
                         if ( certs?.certs ) {
                             let sslCert = certs.certs[item.name]
 
