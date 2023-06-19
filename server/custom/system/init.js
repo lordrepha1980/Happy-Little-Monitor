@@ -25,7 +25,6 @@ module.exports  = {
 
         //start nginxWriteLog
         Nginx.nginxWriteLog({io, ctx: {auth: true}})
-        //sudo certbot certonly --manual --preferred-challenges=dns --email freelancer@christoph-duengel.de --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d *.lordrepha.de
         // start cronjob for ssl certs
         const getCerts = new CronJob(
             '00 00 00 * * *',

@@ -45,14 +45,17 @@
                         <div class="col-12">
                             <q-separator dark/>
                         </div>
-                        <div class="col-12 text-h6 text-white q-mt-lg q-pl-sm">
+                        <div class="col-12 text-h6 text-white q-mt-sm q-pl-sm">
                             SSL
                         </div>
                         <div class="col-12">
                             <q-separator dark/>
                         </div>
+                        <div class="col-6 flex items-center q-pl-md">
+                            SSL wildcard renew for hetzner server
+                        </div>
                         <div class="col-6 flex justify-end">
-                            <cust-toggle label="SSL wildcard renew for hetzner server" v-model="form.wildcardCertBotHetzner" />
+                            <cust-toggle label="" v-model="form.wildcardCertBotHetzner" />
                         </div>
                         <div class="col-12 text-h6 text-white q-mt-lg q-pl-sm">
                             Alarm
