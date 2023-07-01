@@ -145,7 +145,7 @@ async nginxWriteLog ( { ctx, io } ) {
                         const body = JSON.parse(lastLine)
                         await NginxLog.update( {  io, auth: true, noCheck: true, body } )
                     } catch (error) {
-                        log(error)
+                        console.log(error)
                     }
                 } )
         }
