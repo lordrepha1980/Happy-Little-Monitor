@@ -55,7 +55,7 @@ const count = z.object({
     query:      z.object({}),
     user:       z.object({}).optional()
 })
-
+let dbConnection = null;
 module.exports = class Data {
     
     constructor(  ) {
@@ -64,10 +64,19 @@ module.exports = class Data {
 
     async initDb ( ) {
         try {
+            
+            if (dbConnection && dbConnection.db)
+                return dbConnection
+               
+            if (dbConnection && !dbConnection.db && dbConnection.client)
+                dbConnection.client.close()
+
             const Connection        = require( _dirname + '/server/database/MongoDB/Connection.js');
             let connection          = new Connection();
             const { db, client }    = await connection.init();     
-            return { db, client };
+            dbConnection = { db, client };
+            console.log('mongo reconnect')
+            return dbConnection
         } catch (error) {
             throw error;
         }
