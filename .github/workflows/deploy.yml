@@ -46,13 +46,31 @@ jobs:
         local: "public/dist/spa"
         verbose: true
         remote: "/var/www/hlm.lordrepha.de/public"
-    - name: copy serverData
+    - name: copy server directory
+      uses: garygrossgarten/github-action-scp@release
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        privateKey: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        local: "server"
+        verbose: true
+        remote: "/var/www/hlm.lordrepha.de/server"
+    - name: copy router directory
+      uses: garygrossgarten/github-action-scp@release
+      with:
+        host: ${{ secrets.HOSTDEV }}
+        privateKey: ${{ secrets.SSH }}
+        username: ${{ secrets.USERDEV }}
+        local: "routes"
+        verbose: true
+        remote: "/var/www/hlm.lordrepha.de/routes"
+    - name: copy root files
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOSTDEV }}
         key: ${{ secrets.SSH }}
         username: ${{ secrets.USERDEV }}
-        source: "server/custom/*, server/app/*, server/database/*.js, server/database/*.json, routes/*, server/database/MomgoDB/*.js, package.json, package-lock.json"
+        source: "package.json, package-lock.json, app.js"
         target: "/var/www/hlm.lordrepha.de"
     - name: multiple command
       uses: appleboy/ssh-action@v0.1.6
