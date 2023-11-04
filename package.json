@@ -1,6 +1,6 @@
 {
   "name": "MobAPI",
-  "version": "1.10.0",
+  "version": "1.12.1",
   "private": true,
   "dependencies": {
     "@koa/cors": "^3.3.0",
@@ -11,7 +11,7 @@
     "axios": "^0.27.2",
     "bcrypt": "^5.1.0",
     "cookie-parser": "~1.4.4",
-    "cron": "^2.3.1",
+    "cron": "^2.4.1",
     "crypto": "^1.0.1",
     "dayjs": "^1.11.7",
     "debug": "~2.6.9",

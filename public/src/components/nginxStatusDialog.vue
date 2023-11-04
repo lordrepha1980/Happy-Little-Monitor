@@ -19,47 +19,6 @@
                             <bar-chart :value="data" />
                         </div>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-12 text-body1 bg-grey-9 text-bold q-mb-sm ">
-                            Top 30 Errors
-                        </div>
-                        <div class="col-12">
-                            <div class="row itemBorder" v-for="(item, index) in nginxLogAggErrorStatus" :key="index">
-                                <div class="col-3 text-body2 text-bold ellipsis q-pl-sm">
-                                    {{ item._id.status }}
-                                </div>
-                                <div class="col-7 text-bold ellipsis">
-                                    {{ item._id.uri }}
-                                </div>
-                                <div class="col-2 text-right ellipsis">
-                                    {{ item.count }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 text-body1 bg-grey-9 text-bold q-mb-sm ">
-                            Top 10 IP's
-                        </div>
-                        <div class="col-12">
-                            <q-list>
-                                <q-item class="q-px-none" dense v-for="(item, index) in nginxLogAggCountIP" :key="index">
-                                    <q-item-section class="itemBorder">
-                                        <div class="row">
-                                            <div class="col-6 col-sm-2 text-body2 text-bold q-pl-sm">
-                                                {{ item._id }} :
-                                            </div>
-                                            <div class="col-6 col-sm-10 text-right">
-                                                {{ item.count }}
-                                            </div>
-                                        </div>
-                                        
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </div>
-                    </div>
                 </div>
             </q-card-section>
         </q-card>
@@ -74,7 +33,7 @@ import { nginxStatusStore }     from 'src/stores/nginxstatus.store';
 import BarChart                 from 'src/components/custom/barChart.vue'
 
 const useNginxStatusStore           = nginxStatusStore()
-const { nginxLogAggCountIP, nginxLogAggDayHourCount, nginxLogAggErrorStatus } = storeToRefs(useNginxStatusStore)
+const { nginxLogAggDayHourCount } = storeToRefs(useNginxStatusStore)
 
 const useProcessesStore             = processesStore()
 const { showServerStatusDialog, timer, selectedLogFile } = storeToRefs(useProcessesStore)

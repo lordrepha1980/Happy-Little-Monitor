@@ -13,6 +13,10 @@ const rights        = new Rights();
 const sentry        = require(_dirname + '/server/database/sentry.js');
 const Sentry        = new sentry();
 
+const Connection    = require( _dirname + '/server/database/MongoDB/Connection.js');
+
+let dbConnection = null;
+
 const update = z.object({
     auth:       z.boolean(),
     table:      z.string(),
@@ -55,7 +59,6 @@ const count = z.object({
     query:      z.object({}),
     user:       z.object({}).optional()
 })
-let dbConnection = null;
 module.exports = class Data {
     
     constructor(  ) {
@@ -64,27 +67,18 @@ module.exports = class Data {
 
     async initDb ( ) {
         try {
-            
-            if (dbConnection && dbConnection.db)
-                return dbConnection
-               
-            if (dbConnection && !dbConnection.db && dbConnection.client)
-                dbConnection.client.close()
-
-            const Connection        = require( _dirname + '/server/database/MongoDB/Connection.js');
-            let connection          = new Connection();
-            const { db, client }    = await connection.init();     
+            const { db, client }    = await Connection.init();     
             dbConnection = { db, client };
-            console.log('mongo reconnect')
             return dbConnection
         } catch (error) {
             throw error;
         }
     }
 
+
     async closeDb ( client ) {
-        if ( client )
-            client.close()
+        // if ( client )
+        //     client.close()
     }
 
     async update ( request ) {
@@ -206,10 +200,10 @@ module.exports = class Data {
 
             if ( Object.keys(request.query).length === 0 )
                 throw 'Query Empty'
-
-            const items = await db.collection(request.table).find(
+            //TODO toArray MobAPI
+            let items = await db.collection(request.table).find(
                 request.query
-            )
+            ).toArray()
 
             if (items && items.length > 0)
                 items = items.map( item => item._id )
@@ -318,8 +312,6 @@ module.exports = class Data {
             Sentry.addBreadcrumb({message: JSON.stringify({ query: request.query }), category: 'count'})
 
             config.debug.extend && debug('count params: ', request );
-
-            count.parse(request);
 
             if ( config.module.useRights && !request.noCheck ) {
                 const { error } = await rights.check(request, 'count')

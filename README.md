@@ -49,10 +49,14 @@ Example
             "extend": false
         },
         "module": {
+            "defaultSignin":    true,
+            "defaultRegister":  true,
             "useSignin":    true,
             "useRegister":  false
         }
     }
+
+MongoDB: connect to database without credentials remove key 'database.credentials'
 
 - publicPath - default 'public'. This is the directory for index.html
 - database - database connection definition
@@ -91,7 +95,6 @@ With this file you can create data endpoints
 after save from the tables.json MobAPI generate automatically a class with methodes (find, findOne, update, delete...).
 [See data api calls](https://github.com/lordrepha1980/MobAPI/blob/master/README.md#data-api-calls)
 
-
 ### database init:
 
     "database": {
@@ -101,18 +104,9 @@ after save from the tables.json MobAPI generate automatically a class with metho
         "user": "root",
         "password": "",
         "name": "test"
-    },
-    "auth": {
-        "enabled": true,
-        "secret": "insertYourSecretHere",
-        "options": { 
-            "expiresIn": "24h" 
-        }
     }
 
 possible database are ['MongoDB']
-
-    "noDatabase": false init no database
 
 ## Structure
 ### server/database/selected database/mainTemplates.js 
@@ -176,9 +170,22 @@ Possible methodes in CUSTOMTEMPLATE
     
 ### items in Hook
 available item in Hook are:
+
+Data Hook
+
     - result:   result from the database
     - request:  request from the client see [params](https://github.com/lordrepha1980/MobAPI/blob/master/README.md#parameter)
     - _dirname: root directory
+    - uuid:     uid npm module
+    - config:   config JSON from ./server
+    
+
+Custom Methode
+
+    - ctx:      ctx from Koa
+    - _dirname: root directory
+    - uuid:     uid npm module
+    - config:   config JSON from ./server
 
 ## DATA API Calls
 IMPORTANT: ALL  REQUEST TO THE ROUTE /DATA NEED A VALIDE AUTHTENTICATE FOR OPEN ROUTE PLEASE USE /CUSTOM [MORE DETAILS](https://github.com/lordrepha1980/MobAPI/blob/master/README.md#custom-api-calls).
@@ -221,6 +228,7 @@ this is the API for `https://url/data/` request.
         auth, //only server
         noCheck, // only Server
         user //only server
+        login //only server
     }
     
 - table:                required (String) Databasetable, (Serverside: if is empty default table name is the api endpoint name )
@@ -235,6 +243,7 @@ this is the API for `https://url/data/` request.
 - noCheck:              (boolean) check permission ( only server parameter )
 - user:                 (Object) the user ( only server parameter )
 - ctx:                  complete request from Koa
+- login:                (boolean) send to user endpoint before login, you can remove the password for all other requests.
     
 ### Example:
     get first item from database with _id = '1'
@@ -476,5 +485,15 @@ schema rights
         ]
     }
 
+# Migration Guide to v1.12.1
+mobapi.config.json
+replace `ignore_watch`
 
+    ignore_watch: [
+        "server/database/MongoDB/dataApi",
+        "server/database/customApi/get",
+        "server/database/customApi/post",
+        "server/database/customApi",
+        "node_modules"
+    ]
 

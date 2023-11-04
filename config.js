@@ -19,6 +19,7 @@ const config = {
             "username": process.env.DB_USERNAME,
             "password": process.env.DB_PASSWORD
         },
+        "replicaSet": '',
         "name": "HLM"
     },
     "serverPort": process.env.SERVER_PORT,

@@ -58,7 +58,8 @@ class main extends Custom {
 
 
     async getCompany( {body, ctx} ) {
-        const Company = mob.get('data/company')
+
+        const Company = await mob.get('data/company')
         const company = await Company.findOne( { ctx, noCheck: true, auth: true, query: {} } )
 
         ctx.body = company
@@ -109,6 +110,7 @@ if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.
     }
 async sendMail ( { body, ctx } ) {
 if((!ctx || !ctx.auth) && (!auth || typeof auth !== 'boolean')) { if (ctx) {ctx.body = {error: 'Not Authorized'}} return {error: 'Not Authorized'} }
+        return
         try {
             const email = config.email;
             const options = {

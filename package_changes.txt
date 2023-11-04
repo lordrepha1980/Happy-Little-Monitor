@@ -1,15 +1,2 @@
-- version: 1.8.0
-+ version: 1.9.0
-- dependencies.@sentry/node: ^7.31.1
-+ dependencies.@sentry/node: ^7.50.1
-- dependencies.cron: ^2.3.0
-
-- dependencies.jsondiffpatch: ^0.4.1
-
-- dependencies.koa-busboy: ^1.2.0
-
-- dependencies.moment: ^2.29.4
-
-- dependencies.node-libcurl: ^3.0.0
-
-- dependencies.pm2: ^5.3.0
+- version: 1.10.0
++ version: 1.12.1

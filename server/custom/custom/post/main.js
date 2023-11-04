@@ -32,7 +32,8 @@ const send              = require('koa-send')
 
 
     async getCompany( {body, ctx} ) {
-        const Company = mob.get('data/company')
+
+        const Company = await mob.get('data/company')
         const company = await Company.findOne( { ctx, noCheck: true, auth: true, query: {} } )
 
         ctx.body = company
@@ -83,6 +84,7 @@ const send              = require('koa-send')
     }
 
     async sendMail ( { body, ctx } ) {
+        return
         try {
             const email = config.email;
             const options = {

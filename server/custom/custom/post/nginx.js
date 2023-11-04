@@ -6,57 +6,31 @@ const { curly }     = require("node-libcurl");
 {% endblock %}
 
 {% block methodFunctionAuth %}
-async nginxLogAggCountIP ( { ctx, io, user } ) {
-    const { client, db }        = await mob.db()
-    let nin = []
+// async nginxLogAggCountIP ( { ctx, io, user } ) {
+//     const { client, db }        = await mob.db()
+//     let nin = []
 
-    if ( user.nginxIpFilter ) {
-        nin = user.nginxIpFilter.split(',')
-        nin = nin.map( ip => ip.trim() )
-    }
+//     if ( user.nginxIpFilter ) {
+//         nin = user.nginxIpFilter.split(',')
+//         nin = nin.map( ip => ip.trim() )
+//     }
 
-    try {
-        db.collection('nginxLog').aggregate([
-            { $match: { address: { $exists: true, $nin: nin } } },
-            { $group: { _id: "$address", count: { $sum: 1 } } },
-            { $sort: { count: -1 } },
-            { $limit: 10 }
-        ]).toArray( (err, result) => {
-            if (err) throw err;
-            io.emit('nginxLogAggCountIP', { data: result })
-            client.close();
-        });
-    } catch (error) {
-        client.close()
-        return []
-    }
-}
-
-async nginxLogAggErrorStatus ( { ctx, io, user } ) {
-    const { client, db }        = await mob.db()
-    let nin = []
-
-    if ( user.nginxIpFilter ) {
-        nin = user.nginxIpFilter.split(',')
-        nin = nin.map( ip => ip.trim() )
-    }
-
-    try {
-        db.collection('nginxLog').aggregate([
-            { $match: { address: { $exists: true, $nin: nin }, status: { $exists: true, $gt: 200 } } },
-            { $group: { _id: { uri: "$uri", status: "$status" }, count: { $sum: 1 } } },
-            { $sort: { '_id.status': -1, '_id.uri': 1  } },
-            { $limit: 30 }
-        ]).toArray( (err, result) => {
-            if (err) throw err;
-            io.emit('nginxLogAggErrorStatus', { data: result })
-            client.close();
-        });
-    } catch (error) {
-        client.close()
-        return []
-    }
-}
+//     try {
+//         db.collection('nginxLog').aggregate([
+//             { $match: { address: { $exists: true, $nin: nin } } },
+//             { $group: { _id: "$address", count: { $sum: 1 } } },
+//             { $sort: { count: -1 } },
+//             { $limit: 10 }
+//         ]).toArray( (err, result) => {
+//             if (err) throw err;
+//             io.emit('nginxLogAggCountIP', { data: result })
+//             client.close();
+//         });
+//     } catch (error) {
+//         client.close()
+//         return []
+//     }
+// }
 
 async nginxLogAggDayHourCount ( { ctx, io, user } ) {
     const { client, db }        = await mob.db()
@@ -131,7 +105,7 @@ async nginxWriteLog ( { ctx, io } ) {
     const { client, db }    = await mob.db() 
     const NginxColl         = db.collection('nginxLog')
 
-    if ( user.nginxLogfiles ) {
+    if ( user && user.nginxLogfiles ) {
         const logFiles      = user.nginxLogfiles.split(',')
         const deleteTime    = dayjs().subtract(user.saveDays || 60, 'days').valueOf() / 1000
         await NginxColl.deleteMany({ time: {$lt: deleteTime} })
@@ -195,9 +169,8 @@ async nginxStatus ({ io, ctx }) {
                 const User              = await mob.get('data/user')
                 const { data: user}     = await User.findOne({ auth: true, noCheck: true, query: {} })
 
-                await this.nginxLogAggCountIP({ ctx: { auth: true }, io, user })
+                //await this.nginxLogAggCountIP({ ctx: { auth: true }, io, user })
                 await this.nginxLogAggDayHourCount({ ctx: { auth: true }, io, user })
-                await this.nginxLogAggErrorStatus({ ctx: { auth: true }, io, user })
 
                 const { data: nginxRawLog } = await curly.get('http://127.0.0.1/nginx_status');
                 nginxLog = await this.nginxStat({body: nginxRawLog, ctx: { auth: true }})
